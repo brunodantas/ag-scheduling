@@ -1,3 +1,6 @@
 # Main target
+
+.PHONY: test
+
 test: test.c
-	gcc test.c graph.c getinput.c list.c -o test -O1
+	gcc individual.c population.c graph.c getinput.c list.c test.c -o test -O1

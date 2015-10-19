@@ -4,48 +4,87 @@
 #include "genalg.h"
 
 
-//gera um indivíduo válido
-Individual* newindividual()
+void testinitpopulation()
 {
-	int i,r,count=0,currenttaskid;
-	Edge e;
-	list availabletasks = newlist(grafo.n);
-	int* predecessorsleft = malloc(grafo.n*sizeof(int));
-	Individual* ind = (Individual*) malloc(sizeof(Individual));
-	ind->traits[0] = (int*)  malloc(grafo.n*sizeof(int));
-	ind->traits[1] = (int*)  malloc(grafo.n*sizeof(int));
+	int i,j;
+	getgraph("gauss18.txt");
+	POPSIZE = 50;
+	NEXTGENSIZE = 30;
+	initpopulation();
+	Individual* ind;
 
-	//inicializa e procura nós sem predecessores
+	printf("Initial Population:\n");
+	for(i=0;i<POPSIZE;i++)
+	{
+		ind = population[i];
+		printf("Individual %d\nTraits: ",i);
+		for(j=0;j<grafo.n;j++)
+		{
+			printf("%d/%d, ",ind->traits[0][j],ind->traits[1][j]);
+		}
+		printf("\nFitness: %d\n\n",ind->fitness);
+	}
+}
+
+
+//testa a função fitness com indivíduo aleatório para grafoteste.txt
+void testfitness2()
+{
+	int i;
+	getgraph("grafoteste.txt");
+	Individual* ind = newindividual();
+
+	printf("tasks: ");
+	for(i=0;i<grafo.n;i++)
+		printf("%d,",ind->traits[0][i]);
+	printf("\nprocs: ");
+	for(i=0;i<grafo.n;i++)
+		printf("%d,",ind->traits[1][i]);
+	printf("\n");
+	printf("\nFitness: %d\n",evaluate(ind));
+}
+
+
+//testa a função fitness com solução ótima para o gauss18
+void testfitness1()
+{
+	int i;
+	getgraph("gauss18.txt");
+	Individual* ind = newindividual();
+
+	int otima[2][18] = {{0,2,6,3,5,8,1,11,4,10,7,9,13,15,16,12,14,17},{1,1,1,1,0,1,0,1,1,0,0,1,1,1,1,0,1,1}};
+
 	for(i=0;i<grafo.n;i++)
 	{
-		predecessorsleft[i] = grafo.nodes[i].predqty;
-		if(predecessorsleft[i]==0)
-		{
-			add(availabletasks,i);
-		}
+		ind->traits[0][i] = otima[0][i];
+		ind->traits[1][i] = otima[1][i];
 	}
 
-	while(availabletasks->size > 0)
-	{
-		r = rand() % availabletasks->size;
-		currenttaskid = at(availabletasks,r);
-		erase(availabletasks,r);
+	printf("tasks: ");
+	for(i=0;i<grafo.n;i++)
+		printf("%d,",ind->traits[0][i]);
+	printf("\nprocs: ");
+	for(i=0;i<grafo.n;i++)
+		printf("%d,",ind->traits[1][i]);
+	printf("\n");
+	printf("\nFitness: %d\n",evaluate(ind));
+}
 
-		ind->traits[0][count] = currenttaskid;
-		ind->traits[1][count] = rand()%2;
-		count++;
 
-		//adiciona à lista nós cujos predecessores já foram escolhidos
-		for(e = grafo.nodes[currenttaskid].successors; e!=NULL; e = e->next)
-		{
-			predecessorsleft[e->node->id]--;
-			if(predecessorsleft[e->node->id]==0)
-			{
-				add(availabletasks,e->node->id);
-			}
-		}
-	}
-	return ind;
+//gera um indivíduo válido e exibe sua aptidão
+void testindividual2()
+{
+	int i;
+	getgraph("gauss18.txt");
+	Individual* ind = newindividual();
+
+	printf("tasks: ");
+	for(i=0;i<grafo.n;i++)
+		printf("%d,",ind->traits[0][i]);
+	printf("\nprocs: ");
+	for(i=0;i<grafo.n;i++)
+		printf("%d,",ind->traits[1][i]);
+	printf("\nFitness: %d\n",evaluate(ind));
 }
 
 
@@ -59,7 +98,7 @@ void testindividual1()
 	printf("tasks: ");
 	for(i=0;i<grafo.n;i++)
 		printf("%d,",ind->traits[0][i]);
-	printf("\nprocs:");
+	printf("\nprocs: ");
 	for(i=0;i<grafo.n;i++)
 		printf("%d,",ind->traits[1][i]);
 	printf("\n");
@@ -95,6 +134,6 @@ void testgraph1()
 int main()
 {
 	srand(time(NULL));
-	testindividual1();
+	testinitpopulation();
 	return 0;
 }
