@@ -27,3 +27,29 @@ void getgraph(char* filename)
 		addedge(&grafo,a,b,c);
 	}
 }
+
+
+//leitura do arquivo input.txt
+void getinput()
+{
+	int i;
+	FILE *f;
+	int s,c,r,e,nge,ex;
+	char problema[50];
+
+	Individual* (*sel[4])(void) = {&roullete,&tournament3,&tournament2};
+	Individual* (*cross[2])(Individual*,Individual*) = {&cyclecrossover};
+	void (*reins[2])(Population) = {&bestreinsertion};
+
+	f = fopen("input.txt","r");
+	i = fscanf(f,"Problema: %s\n\n",problema);
+	getgraph(problema);
+	i = fscanf(f,"S%d, C%d, R%d\n\n",&s,&c,&r);
+	i = fscanf(f,"Population: %d\nGenerations: %d\nCrossover: %d%%\nMutation: %d%%\n",&POPSIZE,&MAXGENERATIONS,&NEXTGENSIZE,&MUTATIONRATE);
+	NEXTGENSIZE *= POPSIZE;
+	NEXTGENSIZE /= 100;
+
+	selection = sel[s-1];
+	crossover = cross[c-1];
+	reinsertion = reins[r-1];
+}

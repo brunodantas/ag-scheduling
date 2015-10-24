@@ -1,0 +1,15 @@
+Problema: gauss18.txt
+
+S1, C1, R1
+
+Population: 100
+Generations: 100
+Crossover: 60%
+Mutation: 20%
+
+
+
+(S1) Roleta (S2) Torneio de tamanho 3 (S3) Torneio de tamanho 2
+(C1) Crossover cíclico (C2) Crossover PMX.
+(R1) Reinserção ordenada (melhores entre pais e filhos) (R2) Reinserção
+pura com elitismo de 20%

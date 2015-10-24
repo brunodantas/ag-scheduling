@@ -95,26 +95,98 @@ int evaluate(Individual *ind)
 	int i;
 	int* timestamp = malloc(grafo.n*sizeof(int));
 	int totaltime[2] = {0,0};
-	int last[2] = {-1,-1};
 
 	totaltime[PROCESSOR[0]] += grafo.nodes[TASK[0]].cost;
 	timestamp[TASK[0]] = 0;
-	last[PROCESSOR[0]] = TASK[0];
 
 	for(i=1; i<grafo.n; i++)
 	{
-		if(PROCESSOR[i] == PROCESSOR[i-1]) //se o processador é o mesmo do anterior
-		{
-			timestamp[TASK[i]] = totaltime[PROCESSOR[i]];
-			totaltime[PROCESSOR[i]] += grafo.nodes[TASK[i]].cost;
-		}
-		else
-		{
-			gettasktime(ind, i, totaltime, timestamp);
-		}
+		gettasktime(ind, i, totaltime, timestamp);
+
 		//printf("task: %2d timestamp: %d\n",TASK[i],timestamp[TASK[i]]);
 	}
 	
 	ind->fitness = max(totaltime[0],totaltime[1]);
 	return ind->fitness;
+}
+
+
+//troca dois genes de lugar
+void mutation(Individual *ind)
+{
+	int flag = 0;
+	int i;
+	int* genes = (int*)  malloc(grafo.n*sizeof(int));
+	char temp[2];
+	int a,b;
+	a = rand()%grafo.n;
+	b = a;
+	for(b=a;b==a;b = rand()%grafo.n);
+	//printf("%d\t%d\n",a,b);
+
+	for(i=0;i<grafo.n;i++)
+		genes[i] = ind->traits[0][i];
+
+	temp[0] = ind->traits[0][a];
+	temp[1] = ind->traits[1][a];
+	ind->traits[0][a] = ind->traits[0][b];
+	ind->traits[1][a] = ind->traits[1][b];
+	ind->traits[0][b] = temp[0];
+	ind->traits[1][b] = temp[1];
+
+	makevalid(ind);
+
+	for(i=0;i<grafo.n;i++)
+	{
+		if(genes[i] != ind->traits[0][i])
+			return;
+	}
+
+	mutation(ind);
+}
+
+
+//torna indivíduo válido
+void makevalid(Individual *ind)
+{
+	int i,j;
+	list genes[2];
+	genes[0] = newlist(grafo.n);
+	genes[1] = newlist(grafo.n);
+	int* newgenes[2];
+	newgenes[0] = (int*)  malloc(grafo.n*sizeof(int));
+	newgenes[1] = (int*)  malloc(grafo.n*sizeof(int));
+
+	int* predecessorsleft = (int*)  malloc(grafo.n*sizeof(int));
+	Edge e;
+	int currenttaskid;
+
+	for(i=0; i<grafo.n; i++)
+	{
+		add(genes[0],ind->traits[0][i]);
+		add(genes[1],ind->traits[1][i]);
+		predecessorsleft[i] = grafo.nodes[i].predqty;
+	}
+
+	for(i=0; i<grafo.n; i++)
+	{
+		for(j=0;;j++)
+		{
+			currenttaskid = at(genes[0],j);
+			if(predecessorsleft[currenttaskid] == 0)
+			{
+				newgenes[0][i] = currenttaskid;
+				newgenes[1][i] = at(genes[1],j);
+				erase(genes[0],j);
+				erase(genes[1],j);
+
+				for(e = grafo.nodes[currenttaskid].successors; e!=NULL; e = e->next)
+					predecessorsleft[e->node->id]--;
+
+				break;
+			}
+		}
+	}
+	ind->traits[0] = newgenes[0];
+	ind->traits[1] = newgenes[1];
 }

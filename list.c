@@ -22,6 +22,11 @@ int at(list l,int index)
 
 void erase(list l,int index)
 {
-	l->info[index] = l->info[l->size-1];
+	int i;
+
+	for(i=index; i < l->size-1; i++)
+	{
+		l->info[i] = l->info[i+1];
+	}
 	l->size--;
 }

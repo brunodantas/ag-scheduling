@@ -12,7 +12,7 @@ typedef Individual** Population;
 struct l
 {
 	int size;
-	char *info;
+	int *info;
 };
 typedef struct l* list;
 

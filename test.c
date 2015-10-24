@@ -4,7 +4,169 @@
 #include "genalg.h"
 
 
-void testinitpopulation()
+void initialize()
+{
+	srand(time(NULL));
+	getgraph("gauss18.txt");
+	POPSIZE = 50;
+	NEXTGENSIZE = 30;
+	MUTATIONRATE = 10; //percent
+	MAXGENERATIONS = 100;
+	crossover = &cyclecrossover;
+	selection = &roullete;
+	reinsertion = &bestreinsertion;
+}
+
+
+void testindividual3()
+{
+	initialize();
+	int tr[2][18] = {{0,5,2,3,6,7,10,8,11,1,12,4,9,13,15,14,17,16},{1,0,0,1,1,1,0,0,0,1,1,1,1,1,1,1,1,1}};
+	Individual* ind = (Individual*) malloc(sizeof(Individual));
+	ind->traits[0] = tr[0];
+	ind->traits[1] = tr[1];
+
+	printf("Fitness: %d\n",evaluate(ind));
+}
+
+
+void testreinsertion()
+{
+	initialize();
+	int i,j;
+	initpopulation();
+	Individual* ind;
+
+	printf("Initial Population:\n");
+	for(i=0;i<POPSIZE;i++)
+	{
+		ind = population[i];
+		printf("Individual %d\nTraits: ",i);
+		for(j=0;j<grafo.n;j++)
+		{
+			printf("%d/%d, ",ind->traits[0][j],ind->traits[1][j]);
+		}
+		printf("\nFitness: %d\n\n",ind->fitness);
+	}
+
+	nextgeneration();
+
+	printf("\nChildren:\n\n");
+	for(;i<POPSIZE+NEXTGENSIZE;i++)
+	{
+		ind = population[i];
+		printf("Individual %d\nTraits: ",i);
+		for(j=0;j<grafo.n;j++)
+		{
+			printf("%d/%d, ",ind->traits[0][j],ind->traits[1][j]);
+		}
+		printf("\nFitness: %d\n\n",ind->fitness);
+	}
+
+	reinsertion(&population[POPSIZE]);
+
+	printf("\nNew population:\n\n");
+	for(i=0;i<POPSIZE;i++)
+	{
+		ind = population[i];
+		printf("Individual %d\nTraits: ",i);
+		for(j=0;j<grafo.n;j++)
+		{
+			printf("%d/%d, ",ind->traits[0][j],ind->traits[1][j]);
+		}
+		printf("\nFitness: %d\n\n",ind->fitness);
+	}
+}
+
+
+void testnextgen()
+{
+	initialize();
+	int i,j;
+	initpopulation();
+	Individual* ind;
+
+	printf("Initial Population:\n");
+	for(i=0;i<POPSIZE;i++)
+	{
+		ind = population[i];
+		printf("Individual %d\nTraits: ",i);
+		for(j=0;j<grafo.n;j++)
+		{
+			printf("%d/%d, ",ind->traits[0][j],ind->traits[1][j]);
+		}
+		printf("\nFitness: %d\n\n",ind->fitness);
+	}
+
+	nextgeneration();
+
+	printf("\nChildren:\n\n");
+	for(;i<POPSIZE+NEXTGENSIZE;i++)
+	{
+		ind = population[i];
+		printf("Individual %d\nTraits: ",i);
+		for(j=0;j<grafo.n;j++)
+		{
+			printf("%d/%d, ",ind->traits[0][j],ind->traits[1][j]);
+		}
+		printf("\nFitness: %d\n\n",ind->fitness);
+	}
+}
+
+
+void testcrossover1()
+{
+	int i;
+	getgraph("gauss18.txt");
+	Individual* ind = newindividual();
+	Individual* ind2 = newindividual();
+
+	printf("parent1:\n");
+	for(i=0;i<grafo.n;i++)
+		printf("%d/%d,",ind->traits[0][i],ind->traits[1][i]);
+	printf("\nFitness: %d\n",evaluate(ind));
+
+	printf("parent2:\n");
+	for(i=0;i<grafo.n;i++)
+		printf("%d/%d,",ind2->traits[0][i],ind2->traits[1][i]);
+	printf("\nFitness: %d\n",evaluate(ind2));
+
+	ind = cyclecrossover(ind,ind2);
+	ind2 = &ind[1];
+
+	printf("child1:\n");
+	for(i=0;i<grafo.n;i++)
+		printf("%d/%d,",ind->traits[0][i],ind->traits[1][i]);
+	printf("\nFitness: %d\n",evaluate(ind));
+
+	printf("child2:\n");
+	for(i=0;i<grafo.n;i++)
+		printf("%d/%d,",ind2->traits[0][i],ind2->traits[1][i]);
+	printf("\nFitness: %d\n",evaluate(ind2));
+}
+
+
+void testmutation1()
+{
+	int i;
+	getgraph("grafoteste.txt");
+	Individual* ind = newindividual();
+
+	printf("individual:\n");
+	for(i=0;i<grafo.n;i++)
+		printf("%d/%d,",ind->traits[0][i],ind->traits[1][i]);
+	printf("\n");
+
+	mutation(ind);
+
+	printf("\nmutated individual:\n");
+	for(i=0;i<grafo.n;i++)
+		printf("%d/%d,",ind->traits[0][i],ind->traits[1][i]);
+	printf("\n");
+}
+
+
+void testinitpopulation1()
 {
 	int i,j;
 	getgraph("gauss18.txt");
@@ -133,7 +295,6 @@ void testgraph1()
 
 int main()
 {
-	srand(time(NULL));
-	testinitpopulation();
+	testindividual3();
 	return 0;
 }
