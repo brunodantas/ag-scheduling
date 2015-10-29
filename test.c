@@ -1,20 +1,79 @@
 //arquivo para teste de componentes etc
 
 
-#include "genalg.h"
+#include "genalg/genalg.h"
 
 
 void initialize()
 {
-	srand(time(NULL));
-	getgraph("gauss18.txt");
-	POPSIZE = 50;
-	NEXTGENSIZE = 30;
-	MUTATIONRATE = 10; //percent
-	MAXGENERATIONS = 100;
-	crossover = &cyclecrossover;
-	selection = &roullete;
-	reinsertion = &bestreinsertion;
+	int seed = time(NULL);
+	srand(seed);
+	getinput();
+	initrecyclelist();
+	init = 1;
+}
+
+
+void testconvergence2()
+{
+	int i,count,best=9999999;
+	Individual* ind;
+	initialize();
+
+	for(i=0,count=0;i<1000;i++)
+	{
+		ind = genalg();
+		if(ind->fitness<best)
+		{
+			best = ind->fitness;
+			count = 1;
+		}
+		else if(ind->fitness==best)
+		{
+			count++;
+		}
+		recyclepopulation();
+		free(population);
+	}
+	printf("Melhor fitness encontrado: %d\nConvergência: %d/%d\n",best,count,i);
+}
+
+
+void testconvergence()
+{
+	int i,count;
+	Individual* ind;
+	initialize();
+
+	for(i=0,count=0;i<1000;i++)
+	{
+		ind = genalg();
+		if(ind->fitness==44)
+			count++;
+		recyclepopulation();
+		free(population);
+	}
+	printf("Convergência: %d/%d\n",count,i);
+}
+
+
+void testgenalg()
+{
+	int i,j;
+	Individual* ind;
+	initialize();
+	genalg();
+	printf("Final population:\n");
+	for(i=0;i<POPSIZE;i++)
+	{
+		ind = population[i];
+		printf("Individual %d\nTraits: ",i);
+		for(j=0;j<grafo.n;j++)
+		{
+			printf("%d/%d, ",ind->traits[0][j],ind->traits[1][j]);
+		}
+		printf("\nFitness: %d\n\n",ind->fitness);
+	}
 }
 
 
@@ -66,7 +125,7 @@ void testreinsertion()
 	reinsertion(&population[POPSIZE]);
 
 	printf("\nNew population:\n\n");
-	for(i=0;i<POPSIZE;i++)
+	for(i=0;i<POPSIZE+NEXTGENSIZE;i++)
 	{
 		ind = population[i];
 		printf("Individual %d\nTraits: ",i);
@@ -295,6 +354,6 @@ void testgraph1()
 
 int main()
 {
-	testindividual3();
+	testconvergence2();
 	return 0;
 }

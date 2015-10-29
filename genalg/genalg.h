@@ -5,8 +5,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#include "datastructures.h"
-#include "graph.h"
+#include "../domain/datastructures.h"
+#include "../domain/graph.h"
 
 
 int POPSIZE;
@@ -16,6 +16,10 @@ int MAXGENERATIONS;
 Graph grafo;
 Population population;
 Individual *bestindividual;
+Individual **recyclelist;
+int recyclelistsize;
+int init;
+Individual* c[2];
 Individual* (*selection)(void);
 Individual* (*crossover)(Individual*,Individual*);
 void (*reinsertion)(Population);
@@ -23,13 +27,18 @@ void (*reinsertion)(Population);
 
 void getgraph(char* filename);
 
+Individual* genalg();
+
 Individual* newindividual();
 int evaluate(Individual *ind);
 void mutation(Individual *ind);
 void makevalid(Individual *ind);
+void initrecyclelist();
+Individual* getrecycledindividual();
+void recycleindividual(Individual* ind);
+void recyclepopulation();
 
 Population* initpopulation();
-void populationinsert(Population population,Individual *ind,int size);
 Population nextgeneration();
 void best();
 

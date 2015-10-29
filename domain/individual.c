@@ -1,7 +1,7 @@
 //operações no indivíduo
 
 
-#include "genalg.h"
+#include "../genalg/genalg.h"
 
 
 //gera um indivíduo válido
@@ -11,9 +11,7 @@ Individual* newindividual()
 	Edge e;
 	list availabletasks = newlist(grafo.n);
 	int* predecessorsleft = malloc(grafo.n*sizeof(int));
-	Individual* ind = (Individual*) malloc(sizeof(Individual));
-	ind->traits[0] = (int*)  malloc(grafo.n*sizeof(int));
-	ind->traits[1] = (int*)  malloc(grafo.n*sizeof(int));
+	Individual* ind = getrecycledindividual();
 
 	//inicializa e procura nós sem predecessores
 	for(i=0;i<grafo.n;i++)
@@ -49,11 +47,15 @@ Individual* newindividual()
 			}
 		}
 	}
+
+	free(availabletasks->info);
+	free(availabletasks);
+	free(predecessorsleft);
 	return ind;
 }
 
 
-int max(int a,int b)
+static inline int max(int a,int b)
 {
 	if(a>b)
 		return a;
@@ -65,7 +67,7 @@ int max(int a,int b)
 #define PROCESSOR ind->traits[1]
 
 
-void gettasktime(Individual *ind, int taskindex, int* totaltime, int* timestamp)
+static inline void gettasktime(Individual *ind, int taskindex, int* totaltime, int* timestamp)
 {
 	int i,a;
 	int max = totaltime[PROCESSOR[taskindex]];
@@ -107,6 +109,8 @@ int evaluate(Individual *ind)
 	}
 	
 	ind->fitness = max(totaltime[0],totaltime[1]);
+
+	free(timestamp);
 	return ind->fitness;
 }
 
@@ -139,9 +143,12 @@ void mutation(Individual *ind)
 	for(i=0;i<grafo.n;i++)
 	{
 		if(genes[i] != ind->traits[0][i])
+		{
+			free(genes);
 			return;
+		}
 	}
-
+	free(genes);
 	mutation(ind);
 }
 
@@ -187,6 +194,49 @@ void makevalid(Individual *ind)
 			}
 		}
 	}
+	free(genes[0]->info);
+	free(genes[1]->info);
+	free(genes[0]);
+	free(genes[1]);
+	free(ind->traits[0]);
+	free(ind->traits[1]);
 	ind->traits[0] = newgenes[0];
 	ind->traits[1] = newgenes[1];
+}
+
+
+void initrecyclelist()
+{
+	recyclelist = malloc((POPSIZE+NEXTGENSIZE)*sizeof(Individual*));
+	recyclelistsize = 0;
+}
+
+
+Individual* getrecycledindividual()
+{
+	Individual* ind;
+	if(recyclelistsize>0)
+	{
+		recyclelistsize--;
+		return recyclelist[recyclelistsize];
+	}
+	ind = (Individual*) malloc(sizeof(Individual));
+	ind->traits[0] = (int*)  malloc(grafo.n*sizeof(int));
+	ind->traits[1] = (int*)  malloc(grafo.n*sizeof(int));
+	return ind;
+}
+
+
+void recycleindividual(Individual* ind)
+{
+	recyclelist[recyclelistsize] = ind;
+	recyclelistsize++;
+}
+
+
+void recyclepopulation()
+{
+	int i;
+	for(i=0;i<POPSIZE;i++)
+		recycleindividual(population[i]);
 }

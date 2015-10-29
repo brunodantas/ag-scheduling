@@ -27,7 +27,7 @@ Individual* roullete()
 
 
 //seleciona um indivíduo para reprodução
-Individual* tournament(int tournamentsize)
+static inline Individual* tournament(int tournamentsize)
 {
 	Individual *best,*ind;
 	int i,r;

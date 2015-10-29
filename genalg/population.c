@@ -1,7 +1,10 @@
 //operações na população
 
 
-#include "genalg.h"
+#include "../genalg/genalg.h"
+
+
+static inline void populationinsert(Population population,Individual *ind,int size);
 
 
 //gera população inicial
@@ -15,12 +18,15 @@ Population* initpopulation()
 		ind = newindividual();
 		populationinsert(population,ind,i);
 	}
+	for(;i<POPSIZE+NEXTGENSIZE;i++)
+		population[i] = NULL;
+
 	return &population;
 }
 
 
 //insere indivíduo ordenado pela aptidão
-void populationinsert(Population population,Individual *ind,int size)
+static inline void populationinsert(Population population,Individual *ind,int size)
 {
 	int pos,i;
 	evaluate(ind);
@@ -41,7 +47,7 @@ Population nextgeneration()
 {
 	int couples = 0;
 	Population nextgen = &population[POPSIZE];
-	Individual *p1,*p2,*ind,*ind2;
+	Individual *p1,*p2,*ind,*ind2,*a;
 	int flag,i,r;
 
 	for(i=0;i<NEXTGENSIZE;i+=2)
@@ -50,14 +56,14 @@ Population nextgeneration()
 		p1 = selection();
 		p2 = selection();
 		ind = crossover(p1,p2);
-		ind2 = &ind[1];
+		ind2 = c[1];
 
 		//mutação
 		r = rand()%100;
-		if(r<MUTATIONRATE && evaluate(ind)!=0)
+		if(r<MUTATIONRATE)
 			mutation(ind);
 		r = rand()%100;
-		if(r<MUTATIONRATE && evaluate(ind2)!=0)
+		if(r<MUTATIONRATE)
 			mutation(ind2);
 
 		populationinsert(nextgen,ind,i);

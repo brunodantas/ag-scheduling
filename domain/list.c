@@ -1,4 +1,4 @@
-#include "genalg.h"
+#include "../genalg/genalg.h"
 
 
 list newlist(int cap)

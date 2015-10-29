@@ -1,4 +1,4 @@
-#include "genalg.h"
+#include "../genalg/genalg.h"
 
 
 //leitura de grafo de um arquivo e inicialização da estrutura

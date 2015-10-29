@@ -1,11 +1,11 @@
-Problema: gauss18.txt
+Problema: problems/f.txt
 
 S1, C1, R1
 
 Population: 100
-Generations: 100
+Generations: 200
 Crossover: 60%
-Mutation: 20%
+Mutation: 30%
 
 
 

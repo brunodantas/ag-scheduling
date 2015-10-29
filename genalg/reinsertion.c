@@ -1,12 +1,13 @@
 #include "genalg.h"
 
 
+poplist l1,l;
+
+
 //une duas listas ordenadas
-poplist mergepop(poplist a,poplist b)
+static inline poplist mergepop(poplist a,poplist b)
 {
 	int i,j,s=POPSIZE+NEXTGENSIZE;
-	poplist l = malloc(sizeof(struct pl));
-	l->info = malloc(s*sizeof(Individual*));
 
 	for(i=0,j=0,l->size = 0;l->size < s;++l->size)
 	{
@@ -33,17 +34,33 @@ poplist mergepop(poplist a,poplist b)
 }
 
 
-void reins(Population nextgen,int size)
+static inline void reins(Population nextgen,int size)
 {
 	int i;
-	poplist l = malloc(2*sizeof(struct pl));
-	l[0].info = population;
-	l[0].size = size;
-	l[1].info = nextgen;
-	l[1].size = NEXTGENSIZE;
+	Population aux;
+	if(init)
+	{
+		init=0;
+		l1 = malloc(2*sizeof(struct pl));
 
-	l = mergepop(&l[0],&l[1]);
+		l = malloc(sizeof(struct pl));
+		l->info = malloc((POPSIZE+NEXTGENSIZE)*sizeof(Individual*));
+	}
+	
+	l1[0].info = population;
+	l1[0].size = size;
+	l1[1].info = nextgen;
+	l1[1].size = NEXTGENSIZE;
+
+	l = mergepop(&l1[0],&l1[1]);
+	aux = population;
 	population = l->info;
+	l->info = aux;
+
+	for(i=POPSIZE;i<POPSIZE+NEXTGENSIZE;i++)
+	{
+		recycleindividual(population[i]);
+	}
 }
 
 
