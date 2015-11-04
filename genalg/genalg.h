@@ -19,6 +19,7 @@ Individual *bestindividual;
 Individual **recyclelist;
 int recyclelistsize;
 int init;
+int tournamentsize;
 Individual* c[2];
 Individual* (*selection)(void);
 Individual* (*crossover)(Individual*,Individual*);
@@ -32,7 +33,10 @@ Individual* genalg();
 Individual* newindividual();
 int evaluate(Individual *ind);
 void mutation(Individual *ind);
+void mutation2(Individual *ind);
 void makevalid(Individual *ind);
+Individual* allocateindividual();
+
 void initrecyclelist();
 Individual* getrecycledindividual();
 void recycleindividual(Individual* ind);
@@ -42,13 +46,13 @@ Population* initpopulation();
 Population nextgeneration();
 void best();
 
-Individual* roullete();
-Individual* tournament3();
-Individual* tournament2();
+Individual* tournament();
 
 Individual* cyclecrossover(Individual *p1,Individual *p2);
 
 void bestreinsertion(Population nextgen);
+void elite1reinsertion(Population nextgen);
+void elitism(Population nextgen);
 
 list newlist(int cap);
 void add(list l,int a);

@@ -87,7 +87,7 @@ static inline void gettasktime(Individual *ind, int taskindex, int* totaltime, i
 	}
 
 	timestamp[TASK[taskindex]] = max;
-	totaltime[PROCESSOR[taskindex]] = max + grafo.nodes[TASK[i]].cost;
+	totaltime[PROCESSOR[taskindex]] = max + grafo.nodes[TASK[taskindex]].cost;
 }
 
 
@@ -98,7 +98,7 @@ int evaluate(Individual *ind)
 	int* timestamp = malloc(grafo.n*sizeof(int));
 	int totaltime[2] = {0,0};
 
-	totaltime[PROCESSOR[0]] += grafo.nodes[TASK[0]].cost;
+	totaltime[PROCESSOR[TASK[0]]] += grafo.nodes[TASK[0]].cost;
 	timestamp[TASK[0]] = 0;
 
 	for(i=1; i<grafo.n; i++)
@@ -110,6 +110,10 @@ int evaluate(Individual *ind)
 	
 	ind->fitness = max(totaltime[0],totaltime[1]);
 
+	// for(i=0;i<grafo.n;i++)
+	// {
+	// 	printf("%d %d\n",TASK[i],timestamp[TASK[i]]);
+	// }
 	free(timestamp);
 	return ind->fitness;
 }
@@ -150,6 +154,14 @@ void mutation(Individual *ind)
 	}
 	free(genes);
 	mutation(ind);
+}
+
+
+//troca o processador de uma tarefa
+void mutation2(Individual *ind)
+{
+	int a = rand()%grafo.n;
+	ind->traits[1][a] = !ind->traits[1][a];
 }
 
 
@@ -205,38 +217,11 @@ void makevalid(Individual *ind)
 }
 
 
-void initrecyclelist()
-{
-	recyclelist = malloc((POPSIZE+NEXTGENSIZE)*sizeof(Individual*));
-	recyclelistsize = 0;
-}
-
-
-Individual* getrecycledindividual()
+Individual* allocateindividual()
 {
 	Individual* ind;
-	if(recyclelistsize>0)
-	{
-		recyclelistsize--;
-		return recyclelist[recyclelistsize];
-	}
 	ind = (Individual*) malloc(sizeof(Individual));
 	ind->traits[0] = (int*)  malloc(grafo.n*sizeof(int));
 	ind->traits[1] = (int*)  malloc(grafo.n*sizeof(int));
 	return ind;
-}
-
-
-void recycleindividual(Individual* ind)
-{
-	recyclelist[recyclelistsize] = ind;
-	recyclelistsize++;
-}
-
-
-void recyclepopulation()
-{
-	int i;
-	for(i=0;i<POPSIZE;i++)
-		recycleindividual(population[i]);
 }

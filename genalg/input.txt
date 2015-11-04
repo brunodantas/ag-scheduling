@@ -1,6 +1,6 @@
 Problema: problems/gauss18.txt
 
-Population: 100
+Population: 200
 Generations: 200
 Crossover: 99%
 Mutation: 100%

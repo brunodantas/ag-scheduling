@@ -16,6 +16,7 @@ Population* initpopulation()
 	for(i=0;i<POPSIZE;++i)
 	{
 		ind = newindividual();
+		evaluate(ind);
 		populationinsert(population,ind,i);
 	}
 	for(;i<POPSIZE+NEXTGENSIZE;i++)
@@ -29,7 +30,6 @@ Population* initpopulation()
 static inline void populationinsert(Population population,Individual *ind,int size)
 {
 	int pos,i;
-	evaluate(ind);
 	for(pos=0;pos<size;++pos)
 	{
 		if(population[pos]->fitness > ind->fitness)
@@ -60,11 +60,28 @@ Population nextgeneration()
 
 		//mutação
 		r = rand()%100;
-		if(r<MUTATIONRATE)
-			mutation(ind);
+		best();
+		if(evaluate(ind)>=bestindividual->fitness && r<MUTATIONRATE)
+		{
+			r = rand()%2;
+			if(r)
+				mutation(ind);
+			else
+				mutation2(ind);
+			evaluate(ind);
+		}
 		r = rand()%100;
-		if(r<MUTATIONRATE)
-			mutation(ind2);
+		if(evaluate(ind2)>=bestindividual->fitness && r<MUTATIONRATE)
+		{
+			r = rand()%2;
+			if(r)
+				mutation(ind2);
+			else
+				mutation2(ind2);
+			evaluate(ind2);
+		}
+
+
 
 		populationinsert(nextgen,ind,i);
 		populationinsert(nextgen,ind2,i+1);

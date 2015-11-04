@@ -4,6 +4,29 @@
 poplist l1,l;
 
 
+//elimina toda a população anterior menos o melhor
+void elite1reinsertion(Population nextgen)
+{
+	int i,j,flag=1;
+
+	Individual* s = population[0];
+
+	for(i=0,j=0;i<POPSIZE;i++,j++)
+	{
+		if(flag)
+		{
+			if(s->fitness < nextgen[j]->fitness)
+			{
+				flag = 0;
+				population[i] = s;
+				i++;
+			}
+		}
+		population[i] = nextgen[j];
+	}
+}
+
+
 //une duas listas ordenadas
 static inline poplist mergepop(poplist a,poplist b)
 {
@@ -57,10 +80,7 @@ static inline void reins(Population nextgen,int size)
 	population = l->info;
 	l->info = aux;
 
-	for(i=POPSIZE;i<POPSIZE+NEXTGENSIZE;i++)
-	{
-		recycleindividual(population[i]);
-	}
+
 }
 
 
@@ -68,4 +88,12 @@ static inline void reins(Population nextgen,int size)
 void bestreinsertion(Population nextgen)
 {
 	reins(nextgen,POPSIZE);
+}
+
+
+//mantém os melhores pais
+void elitism(Population nextgen)
+{
+	int elite = POPSIZE - NEXTGENSIZE;
+	reins(nextgen,elite);
 }

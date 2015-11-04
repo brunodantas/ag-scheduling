@@ -22,7 +22,7 @@ void getgraph(char* filename)
 	z = fscanf(file,"%d\n",&grafo.nodes[i].cost);
 
 	//lê as arestas
-	while(fscanf(file,"%d,%d %d\n",&a,&b,&c)!=EOF)
+	while(fscanf(file,"%d,%d,%d\n",&a,&b,&c)!=EOF)
 	{
 		addedge(&grafo,a,b,c);
 	}
@@ -34,22 +34,16 @@ void getinput()
 {
 	int i;
 	FILE *f;
-	int s,c,r,e,nge,ex;
 	char problema[50];
-
-	Individual* (*sel[4])(void) = {&roullete,&tournament3,&tournament2};
-	Individual* (*cross[2])(Individual*,Individual*) = {&cyclecrossover};
-	void (*reins[2])(Population) = {&bestreinsertion};
 
 	f = fopen("input.txt","r");
 	i = fscanf(f,"Problema: %s\n\n",problema);
 	getgraph(problema);
-	i = fscanf(f,"S%d, C%d, R%d\n\n",&s,&c,&r);
-	i = fscanf(f,"Population: %d\nGenerations: %d\nCrossover: %d%%\nMutation: %d%%\n",&POPSIZE,&MAXGENERATIONS,&NEXTGENSIZE,&MUTATIONRATE);
+	i = fscanf(f,"Population: %d\nGenerations: %d\nCrossover: %d%%\nMutation: %d%%\nTournament: %d\n",&POPSIZE,&MAXGENERATIONS,&NEXTGENSIZE,&MUTATIONRATE,&tournamentsize);
 	NEXTGENSIZE *= POPSIZE;
 	NEXTGENSIZE /= 100;
 
-	selection = sel[s-1];
-	crossover = cross[c-1];
-	reinsertion = reins[r-1];
+	selection = &tournament;
+	crossover = &cyclecrossover;
+	reinsertion = &elitism;
 }

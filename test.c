@@ -1,359 +1,176 @@
 //arquivo para teste de componentes etc
 
 
-#include "genalg/genalg.h"
+#include <string.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <fcntl.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <unistd.h>
 
 
-void initialize()
+int experiments;
+int best[4];
+int convergence[4];
+int threadindex[4];
+int POPSIZE,NEXTGENSIZE,MAXGENERATIONS,MUTATIONRATE,tournamentsize;
+char problema[50];
+char output[4][20] = {"out1","out2","out3","out4"};
+int seed[4];
+
+
+void getinput()
 {
-	int seed = time(NULL);
-	srand(seed);
-	getinput();
-	initrecyclelist();
-	init = 1;
+	int i;
+	FILE *f;
+
+	f = fopen("input.txt","r");
+	i = fscanf(f,"Problema: %s\n\n",problema);
+	i = fscanf(f,"Population: %d\nGenerations: %d\nCrossover: %d%%\nMutation: %d%%\nTournament: %d\n",&POPSIZE,&MAXGENERATIONS,&NEXTGENSIZE,&MUTATIONRATE,&tournamentsize);
+	NEXTGENSIZE *= POPSIZE;
+	NEXTGENSIZE /= 100;
 }
 
 
-void testconvergence2()
+void *genalg(void *command)
 {
-	int i,count,best=9999999;
-	Individual* ind;
-	initialize();
+	int a = system((char*) command);
+	return NULL;
+}
 
-	for(i=0,count=0;i<1000;i++)
+
+//função executada por cada thread
+void *runAG(void *in)
+{
+	int i,a,fitness;
+	int index = *(int *)in; //index da thread
+	seed[index] = time(NULL)+(index*experiments);
+	char* out = output[index];
+	best[index] = 9999999;
+	char command[100];
+	FILE *f;
+	int texp = experiments/4;
+	char buf[10];
+	pthread_t t;
+
+	if(index == 3)
+		texp += experiments%4;
+
+	for(i=0,convergence[index]=0;i<texp;i++,seed[index]++)
 	{
-		ind = genalg();
-		if(ind->fitness<best)
+		snprintf(command,100,"./genalg/genalg %d %s %d %d %d %d %d %s",
+			seed[index],problema,POPSIZE,MAXGENERATIONS,NEXTGENSIZE,MUTATIONRATE,tournamentsize,out);
+		//printf("%s\n",command);
+
+		pthread_create(&t, NULL, genalg, command);
+
+		int fd;
+		while((fd = open(out, O_RDONLY))==-1);
+		a = read(fd, buf, 10);
+		close(fd);
+		fitness = atoi(buf);
+
+		pthread_join(t, NULL);
+
+		if(fitness<best[index])
 		{
-			best = ind->fitness;
+			best[index] = fitness;
+			convergence[index] = 1;
+		}
+		else if(fitness==best[index])
+		{
+			convergence[index]++;
+		}
+		//printf("%d\n",fitness);
+	}
+	snprintf(command,80,"rm %s",out);
+	a = system(command);
+	printf("thread: %d\texecutions: %d\tbest: %d\tconvergence: %d\n",index,texp,best[index],convergence[index]);
+}
+
+
+void testconvergence2(int argc,char* argv[])
+{
+	int i,a;
+	pthread_t threads[3];
+	if(argc>1)
+		experiments = atoi(argv[1]);
+	else
+		experiments = 100;
+
+	getinput();
+	printf("%s\n",problema);
+
+	for (i = 0; i < 3; ++i)
+	{
+		threadindex[i] = i;
+		pthread_create(&threads[i], NULL, runAG, &threadindex[i]);
+	}
+
+	runAG(&i);
+
+	for (i = 0; i < 3; ++i)
+	{
+		pthread_join(threads[i], NULL);
+	}
+
+	int b = best[0];
+	int c = convergence[0];
+
+	for(i=1;i<4;i++)
+	{
+		if(best[i]<b)
+		{
+			b = best[i];
+			c = convergence[i];
+		}
+		else if(best[i]==b)
+		{
+			c += convergence[i];
+		}
+		//printf("%d\n",fitness);
+	}
+	printf("Melhor fitness encontrado: %d\nConvergência: %d/%d\n",b,c,experiments);
+}
+
+
+void testsinglethread(char* argv[])
+{
+	int a,i,count,best=9999999,fitness;
+	getinput();
+	char command[80];
+	char *out = output[0];
+	FILE* f;
+	experiments = atoi(argv[1]);
+	int seed = time(NULL);
+
+	for(i=0,count=0;i<experiments;i++,seed++)
+	{
+		snprintf(command,80,"./genalg/genalg %d %s %d %d %d %d %d %s",
+			seed,problema,POPSIZE,MAXGENERATIONS,NEXTGENSIZE,MUTATIONRATE,tournamentsize,out);
+
+		a = system(command);
+		f = fopen(out,"r");
+		a = fscanf(f,"%d",&fitness);
+
+		if(fitness<best)
+		{
+			best = fitness;
 			count = 1;
 		}
-		else if(ind->fitness==best)
+		else if(fitness==best)
 		{
 			count++;
 		}
-		recyclepopulation();
-		free(population);
+		fclose(f);
 	}
 	printf("Melhor fitness encontrado: %d\nConvergência: %d/%d\n",best,count,i);
 }
 
 
-void testconvergence()
+int main(int argc,char* argv[])
 {
-	int i,count;
-	Individual* ind;
-	initialize();
-
-	for(i=0,count=0;i<1000;i++)
-	{
-		ind = genalg();
-		if(ind->fitness==44)
-			count++;
-		recyclepopulation();
-		free(population);
-	}
-	printf("Convergência: %d/%d\n",count,i);
-}
-
-
-void testgenalg()
-{
-	int i,j;
-	Individual* ind;
-	initialize();
-	genalg();
-	printf("Final population:\n");
-	for(i=0;i<POPSIZE;i++)
-	{
-		ind = population[i];
-		printf("Individual %d\nTraits: ",i);
-		for(j=0;j<grafo.n;j++)
-		{
-			printf("%d/%d, ",ind->traits[0][j],ind->traits[1][j]);
-		}
-		printf("\nFitness: %d\n\n",ind->fitness);
-	}
-}
-
-
-void testindividual3()
-{
-	initialize();
-	int tr[2][18] = {{0,5,2,3,6,7,10,8,11,1,12,4,9,13,15,14,17,16},{1,0,0,1,1,1,0,0,0,1,1,1,1,1,1,1,1,1}};
-	Individual* ind = (Individual*) malloc(sizeof(Individual));
-	ind->traits[0] = tr[0];
-	ind->traits[1] = tr[1];
-
-	printf("Fitness: %d\n",evaluate(ind));
-}
-
-
-void testreinsertion()
-{
-	initialize();
-	int i,j;
-	initpopulation();
-	Individual* ind;
-
-	printf("Initial Population:\n");
-	for(i=0;i<POPSIZE;i++)
-	{
-		ind = population[i];
-		printf("Individual %d\nTraits: ",i);
-		for(j=0;j<grafo.n;j++)
-		{
-			printf("%d/%d, ",ind->traits[0][j],ind->traits[1][j]);
-		}
-		printf("\nFitness: %d\n\n",ind->fitness);
-	}
-
-	nextgeneration();
-
-	printf("\nChildren:\n\n");
-	for(;i<POPSIZE+NEXTGENSIZE;i++)
-	{
-		ind = population[i];
-		printf("Individual %d\nTraits: ",i);
-		for(j=0;j<grafo.n;j++)
-		{
-			printf("%d/%d, ",ind->traits[0][j],ind->traits[1][j]);
-		}
-		printf("\nFitness: %d\n\n",ind->fitness);
-	}
-
-	reinsertion(&population[POPSIZE]);
-
-	printf("\nNew population:\n\n");
-	for(i=0;i<POPSIZE+NEXTGENSIZE;i++)
-	{
-		ind = population[i];
-		printf("Individual %d\nTraits: ",i);
-		for(j=0;j<grafo.n;j++)
-		{
-			printf("%d/%d, ",ind->traits[0][j],ind->traits[1][j]);
-		}
-		printf("\nFitness: %d\n\n",ind->fitness);
-	}
-}
-
-
-void testnextgen()
-{
-	initialize();
-	int i,j;
-	initpopulation();
-	Individual* ind;
-
-	printf("Initial Population:\n");
-	for(i=0;i<POPSIZE;i++)
-	{
-		ind = population[i];
-		printf("Individual %d\nTraits: ",i);
-		for(j=0;j<grafo.n;j++)
-		{
-			printf("%d/%d, ",ind->traits[0][j],ind->traits[1][j]);
-		}
-		printf("\nFitness: %d\n\n",ind->fitness);
-	}
-
-	nextgeneration();
-
-	printf("\nChildren:\n\n");
-	for(;i<POPSIZE+NEXTGENSIZE;i++)
-	{
-		ind = population[i];
-		printf("Individual %d\nTraits: ",i);
-		for(j=0;j<grafo.n;j++)
-		{
-			printf("%d/%d, ",ind->traits[0][j],ind->traits[1][j]);
-		}
-		printf("\nFitness: %d\n\n",ind->fitness);
-	}
-}
-
-
-void testcrossover1()
-{
-	int i;
-	getgraph("gauss18.txt");
-	Individual* ind = newindividual();
-	Individual* ind2 = newindividual();
-
-	printf("parent1:\n");
-	for(i=0;i<grafo.n;i++)
-		printf("%d/%d,",ind->traits[0][i],ind->traits[1][i]);
-	printf("\nFitness: %d\n",evaluate(ind));
-
-	printf("parent2:\n");
-	for(i=0;i<grafo.n;i++)
-		printf("%d/%d,",ind2->traits[0][i],ind2->traits[1][i]);
-	printf("\nFitness: %d\n",evaluate(ind2));
-
-	ind = cyclecrossover(ind,ind2);
-	ind2 = &ind[1];
-
-	printf("child1:\n");
-	for(i=0;i<grafo.n;i++)
-		printf("%d/%d,",ind->traits[0][i],ind->traits[1][i]);
-	printf("\nFitness: %d\n",evaluate(ind));
-
-	printf("child2:\n");
-	for(i=0;i<grafo.n;i++)
-		printf("%d/%d,",ind2->traits[0][i],ind2->traits[1][i]);
-	printf("\nFitness: %d\n",evaluate(ind2));
-}
-
-
-void testmutation1()
-{
-	int i;
-	getgraph("grafoteste.txt");
-	Individual* ind = newindividual();
-
-	printf("individual:\n");
-	for(i=0;i<grafo.n;i++)
-		printf("%d/%d,",ind->traits[0][i],ind->traits[1][i]);
-	printf("\n");
-
-	mutation(ind);
-
-	printf("\nmutated individual:\n");
-	for(i=0;i<grafo.n;i++)
-		printf("%d/%d,",ind->traits[0][i],ind->traits[1][i]);
-	printf("\n");
-}
-
-
-void testinitpopulation1()
-{
-	int i,j;
-	getgraph("gauss18.txt");
-	POPSIZE = 50;
-	NEXTGENSIZE = 30;
-	initpopulation();
-	Individual* ind;
-
-	printf("Initial Population:\n");
-	for(i=0;i<POPSIZE;i++)
-	{
-		ind = population[i];
-		printf("Individual %d\nTraits: ",i);
-		for(j=0;j<grafo.n;j++)
-		{
-			printf("%d/%d, ",ind->traits[0][j],ind->traits[1][j]);
-		}
-		printf("\nFitness: %d\n\n",ind->fitness);
-	}
-}
-
-
-//testa a função fitness com indivíduo aleatório para grafoteste.txt
-void testfitness2()
-{
-	int i;
-	getgraph("grafoteste.txt");
-	Individual* ind = newindividual();
-
-	printf("tasks: ");
-	for(i=0;i<grafo.n;i++)
-		printf("%d,",ind->traits[0][i]);
-	printf("\nprocs: ");
-	for(i=0;i<grafo.n;i++)
-		printf("%d,",ind->traits[1][i]);
-	printf("\n");
-	printf("\nFitness: %d\n",evaluate(ind));
-}
-
-
-//testa a função fitness com solução ótima para o gauss18
-void testfitness1()
-{
-	int i;
-	getgraph("gauss18.txt");
-	Individual* ind = newindividual();
-
-	int otima[2][18] = {{0,2,6,3,5,8,1,11,4,10,7,9,13,15,16,12,14,17},{1,1,1,1,0,1,0,1,1,0,0,1,1,1,1,0,1,1}};
-
-	for(i=0;i<grafo.n;i++)
-	{
-		ind->traits[0][i] = otima[0][i];
-		ind->traits[1][i] = otima[1][i];
-	}
-
-	printf("tasks: ");
-	for(i=0;i<grafo.n;i++)
-		printf("%d,",ind->traits[0][i]);
-	printf("\nprocs: ");
-	for(i=0;i<grafo.n;i++)
-		printf("%d,",ind->traits[1][i]);
-	printf("\n");
-	printf("\nFitness: %d\n",evaluate(ind));
-}
-
-
-//gera um indivíduo válido e exibe sua aptidão
-void testindividual2()
-{
-	int i;
-	getgraph("gauss18.txt");
-	Individual* ind = newindividual();
-
-	printf("tasks: ");
-	for(i=0;i<grafo.n;i++)
-		printf("%d,",ind->traits[0][i]);
-	printf("\nprocs: ");
-	for(i=0;i<grafo.n;i++)
-		printf("%d,",ind->traits[1][i]);
-	printf("\nFitness: %d\n",evaluate(ind));
-}
-
-
-//gera um indivíduo válido
-void testindividual1()
-{
-	int i;
-	getgraph("gauss18.txt");
-	Individual* ind = newindividual();
-
-	printf("tasks: ");
-	for(i=0;i<grafo.n;i++)
-		printf("%d,",ind->traits[0][i]);
-	printf("\nprocs: ");
-	for(i=0;i<grafo.n;i++)
-		printf("%d,",ind->traits[1][i]);
-	printf("\n");
-}
-
-
-//leitura de grafo de um arquivo e inicialização da estrutura
-void testgraph1()
-{
-	int i;
-	getgraph("gauss18.txt");
-	Edge e;
-	Node* no;
-
-	for(i=0;i<grafo.n;i++)
-	{
-		no = &grafo.nodes[i];
-		printf("Nó %d\n\tSucessores: ",no->id);
-		for(e=no->successors; e!=NULL; e=e->next)
-		{
-			printf("%d, ",e->node->id);
-		}
-		printf("\n\tAntecessores: ");
-		for(e=no->predecessors; e!=NULL; e=e->next)
-		{
-			printf("%d, ",e->node->id);
-		}
-		printf("\n\tNumero de antecessores: %d\n",no->predqty);
-	}
-}
-
-
-int main()
-{
-	testconvergence2();
+	testconvergence2(argc,argv);
 	return 0;
 }
