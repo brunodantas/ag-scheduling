@@ -4,20 +4,23 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <time.h>
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
 
 
+int threadqty;
 int experiments;
-int best[4];
-int convergence[4];
-int threadindex[4];
+int best[10];
+int worst[10];
+int convergence[10];
+int threadindex[10];
 int POPSIZE,NEXTGENSIZE,MAXGENERATIONS,MUTATIONRATE,tournamentsize;
 char problema[50];
-char output[4][20] = {"out1","out2","out3","out4"};
-int seed[4];
+char output[10][20] = {"out1","out2","out3","out4","out5","out6","out7","out8","out9","out10"};
+int seed[10];
 
 
 void getinput()
@@ -48,18 +51,19 @@ void *runAG(void *in)
 	seed[index] = time(NULL)+(index*experiments);
 	char* out = output[index];
 	best[index] = 9999999;
+	worst[index] = 0;
 	char command[100];
 	FILE *f;
-	int texp = experiments/4;
+	int texp = experiments/threadqty;
 	char buf[10];
 	pthread_t t;
 
-	if(index == 3)
-		texp += experiments%4;
+	if(index == threadqty-1)
+		texp += experiments%threadqty;
 
 	for(i=0,convergence[index]=0;i<texp;i++,seed[index]++)
 	{
-		snprintf(command,100,"./genalg/genalg %d %s %d %d %d %d %d %s",
+		snprintf(command,100,"../../genalg/genalg %d %s %d %d %d %d %d %s",
 			seed[index],problema,POPSIZE,MAXGENERATIONS,NEXTGENSIZE,MUTATIONRATE,tournamentsize,out);
 		//printf("%s\n",command);
 
@@ -73,6 +77,8 @@ void *runAG(void *in)
 
 		pthread_join(t, NULL);
 
+		if(fitness>worst[index])
+			worst[index] = fitness;
 		if(fitness<best[index])
 		{
 			best[index] = fitness;
@@ -90,19 +96,30 @@ void *runAG(void *in)
 }
 
 
-void testconvergence2(int argc,char* argv[])
+void testconvergence(int argc,char* argv[])
 {
 	int i,a;
-	pthread_t threads[3];
+	struct timeval tim;
+	double exptime,t1,t2;
+	pthread_t threads[10];
+
+	gettimeofday(&tim, NULL);  
+	t1=tim.tv_sec+(tim.tv_usec/1000000.0); 
+
 	if(argc>1)
 		experiments = atoi(argv[1]);
 	else
 		experiments = 100;
 
+	if(argc>2)
+		threadqty = atoi(argv[2]);
+	else
+		threadqty = 4;	
+
 	getinput();
 	printf("%s\n",problema);
 
-	for (i = 0; i < 3; ++i)
+	for (i = 0; i < threadqty-1; ++i)
 	{
 		threadindex[i] = i;
 		pthread_create(&threads[i], NULL, runAG, &threadindex[i]);
@@ -110,16 +127,16 @@ void testconvergence2(int argc,char* argv[])
 
 	runAG(&i);
 
-	for (i = 0; i < 3; ++i)
+	int b = best[threadqty-1];
+	int c = convergence[threadqty-1];
+	int w = worst[threadqty-1];
+
+	for (i = 0; i < threadqty-1; ++i)
 	{
 		pthread_join(threads[i], NULL);
-	}
-
-	int b = best[0];
-	int c = convergence[0];
-
-	for(i=1;i<4;i++)
-	{
+		
+		if(worst[i] > w)
+			w = worst[i];
 		if(best[i]<b)
 		{
 			b = best[i];
@@ -131,46 +148,17 @@ void testconvergence2(int argc,char* argv[])
 		}
 		//printf("%d\n",fitness);
 	}
-	printf("Melhor fitness encontrado: %d\nConvergência: %d/%d\n",b,c,experiments);
-}
 
+	gettimeofday(&tim, NULL); 
+	t2=tim.tv_sec+(tim.tv_usec/1000000.0); 
+	exptime = t2-t1;
 
-void testsinglethread(char* argv[])
-{
-	int a,i,count,best=9999999,fitness;
-	getinput();
-	char command[80];
-	char *out = output[0];
-	FILE* f;
-	experiments = atoi(argv[1]);
-	int seed = time(NULL);
-
-	for(i=0,count=0;i<experiments;i++,seed++)
-	{
-		snprintf(command,80,"./genalg/genalg %d %s %d %d %d %d %d %s",
-			seed,problema,POPSIZE,MAXGENERATIONS,NEXTGENSIZE,MUTATIONRATE,tournamentsize,out);
-
-		a = system(command);
-		f = fopen(out,"r");
-		a = fscanf(f,"%d",&fitness);
-
-		if(fitness<best)
-		{
-			best = fitness;
-			count = 1;
-		}
-		else if(fitness==best)
-		{
-			count++;
-		}
-		fclose(f);
-	}
-	printf("Melhor fitness encontrado: %d\nConvergência: %d/%d\n",best,count,i);
+	printf("Execution time: %f s\nBest fitness: %d\nConvergence: %d/%d\nWorst fitness: %d\n",exptime,b,c,experiments,w);
 }
 
 
 int main(int argc,char* argv[])
 {
-	testconvergence2(argc,argv);
+	testconvergence(argc,argv);
 	return 0;
 }

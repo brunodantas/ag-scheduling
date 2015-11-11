@@ -30,6 +30,8 @@ void runGA(int argc,char* argv[])
 	char* output;
 	char out[10];
 	int fd;
+	struct timeval tim;
+	double exptime,t1,t2;
 	
 	if(argc>2)
 	{
@@ -43,7 +45,7 @@ void runGA(int argc,char* argv[])
 		output = argv[8];
 		selection = &tournament;
 		crossover = &cyclecrossover;
-		reinsertion = &elitism;
+		reinsertion = &bestreinsertion;
 	}
 	else
 	{
@@ -52,10 +54,21 @@ void runGA(int argc,char* argv[])
 	}
 
 	srand(seed);
-	initrecyclelist();
 	init = 1;
 
+	if(argc<2)
+	{
+		gettimeofday(&tim, NULL);  
+		t1=tim.tv_sec+(tim.tv_usec/1000000.0); 
+	}
+
 	Individual* ind = genalg();
+
+	if(argc<2)
+	{
+		gettimeofday(&tim, NULL); 
+		t2=tim.tv_sec+(tim.tv_usec/1000000.0); 
+	}
 
 	if(argc>1)
 	{
@@ -68,7 +81,8 @@ void runGA(int argc,char* argv[])
 	}
 	else
 	{
-		printf("best fitness: %d\ncheck output.txt\n",ind->fitness);
+		exptime = t2-t1;
+		printf("execution time: %f s\nbest fitness: %d\ncheck output.txt\n",exptime,ind->fitness);
 		FILE *fp = fopen("output.txt", "ab+");
 		fp = freopen("output.txt", "w",stdout);
 		fprintf(fp,"Final population:\n");

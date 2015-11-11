@@ -7,6 +7,14 @@
 static inline void populationinsert(Population population,Individual *ind,int size);
 
 
+int compareind(const void * a,const void * b)
+{
+	Individual** ind = (Individual**) a;
+	Individual** ind2 = (Individual**) b;
+	return (*ind)->fitness - (*ind2)->fitness;
+}
+
+
 //gera população inicial
 Population* initpopulation()
 {
@@ -22,33 +30,25 @@ Population* initpopulation()
 	for(;i<POPSIZE+NEXTGENSIZE;i++)
 		population[i] = NULL;
 
+	qsort(population,POPSIZE,sizeof(Individual*),compareind);
 	return &population;
 }
 
 
 //insere indivíduo ordenado pela aptidão
-static inline void populationinsert(Population population,Individual *ind,int size)
+static inline void populationinsert(Population pop,Individual *ind,int size)
 {
-	int pos,i;
-	for(pos=0;pos<size;++pos)
-	{
-		if(population[pos]->fitness > ind->fitness)
-			break;
-	}
-	for(i=size;i>pos;i--)
-		population[i] = population[i-1];
-
-	population[pos] = ind;
+	pop[size] = ind;
 }
 
 
 //retorna um vetor de indivíduos descendentes da população atual
 Population nextgeneration()
 {
-	int couples = 0;
 	Population nextgen = &population[POPSIZE];
-	Individual *p1,*p2,*ind,*ind2,*a;
-	int flag,i,r;
+	Individual *p1,*p2,*ind,*ind2;
+	int flag,i,j,r;
+	bestindividual = population[0];
 
 	for(i=0;i<NEXTGENSIZE;i+=2)
 	{
@@ -58,9 +58,26 @@ Population nextgeneration()
 		ind = crossover(p1,p2);
 		ind2 = c[1];
 
+		//garantia de variedade genética
+		if(evaluate(ind)>=bestindividual->fitness)
+		{
+			r = rand()%2;
+			if(r)
+				mutation(ind);
+			else
+				mutation2(ind);
+		}
+		if(evaluate(ind2)>=bestindividual->fitness)
+		{
+			r = rand()%2;
+			if(r)
+				mutation(ind2);
+			else
+				mutation2(ind2);
+		}
+		
 		//mutação
 		r = rand()%100;
-		best();
 		if(evaluate(ind)>=bestindividual->fitness && r<MUTATIONRATE)
 		{
 			r = rand()%2;
@@ -70,8 +87,10 @@ Population nextgeneration()
 				mutation2(ind);
 			evaluate(ind);
 		}
+		populationinsert(nextgen,ind,i);
+
 		r = rand()%100;
-		if(evaluate(ind2)>=bestindividual->fitness && r<MUTATIONRATE)
+		if(i+1 < NEXTGENSIZE && evaluate(ind2)>=bestindividual->fitness && r<MUTATIONRATE)
 		{
 			r = rand()%2;
 			if(r)
@@ -80,12 +99,10 @@ Population nextgeneration()
 				mutation2(ind2);
 			evaluate(ind2);
 		}
-
-
-
-		populationinsert(nextgen,ind,i);
 		populationinsert(nextgen,ind2,i+1);
+		
 	}
+	qsort(nextgen,NEXTGENSIZE,sizeof(Individual*),compareind);
 	return nextgen;
 }
 

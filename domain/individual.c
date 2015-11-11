@@ -11,7 +11,7 @@ Individual* newindividual()
 	Edge e;
 	list availabletasks = newlist(grafo.n);
 	int* predecessorsleft = malloc(grafo.n*sizeof(int));
-	Individual* ind = getrecycledindividual();
+	Individual* ind = allocateindividual();
 
 	//inicializa e procura nós sem predecessores
 	for(i=0;i<grafo.n;i++)
@@ -95,15 +95,15 @@ static inline void gettasktime(Individual *ind, int taskindex, int* totaltime, i
 int evaluate(Individual *ind)
 {
 	int i;
-	int* timestamp = malloc(grafo.n*sizeof(int));
 	int totaltime[2] = {0,0};
 
+	int* timestamps = (int*)  malloc(grafo.n*sizeof(int));
 	totaltime[PROCESSOR[TASK[0]]] += grafo.nodes[TASK[0]].cost;
-	timestamp[TASK[0]] = 0;
+	timestamps[TASK[0]] = 0;
 
 	for(i=1; i<grafo.n; i++)
 	{
-		gettasktime(ind, i, totaltime, timestamp);
+		gettasktime(ind, i, totaltime, timestamps);
 
 		//printf("task: %2d timestamp: %d\n",TASK[i],timestamp[TASK[i]]);
 	}
@@ -114,7 +114,7 @@ int evaluate(Individual *ind)
 	// {
 	// 	printf("%d %d\n",TASK[i],timestamp[TASK[i]]);
 	// }
-	free(timestamp);
+	
 	return ind->fitness;
 }
 
@@ -223,5 +223,6 @@ Individual* allocateindividual()
 	ind = (Individual*) malloc(sizeof(Individual));
 	ind->traits[0] = (int*)  malloc(grafo.n*sizeof(int));
 	ind->traits[1] = (int*)  malloc(grafo.n*sizeof(int));
+	
 	return ind;
 }

@@ -45,5 +45,5 @@ void getinput()
 
 	selection = &tournament;
 	crossover = &cyclecrossover;
-	reinsertion = &elitism;
+	reinsertion = &bestreinsertion;
 }

@@ -6,8 +6,8 @@ Individual* cyclecrossover(Individual *p1,Individual *p2)
 {
 	int i,j,k,inicial,aux[2];
 	
-	c[0] = getrecycledindividual();
-	c[1] = getrecycledindividual();
+	c[0] = allocateindividual();
+	c[1] = allocateindividual();
 
 	//copia os individuos
 	for(i=0;i<2;i++)

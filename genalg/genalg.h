@@ -37,11 +37,6 @@ void mutation2(Individual *ind);
 void makevalid(Individual *ind);
 Individual* allocateindividual();
 
-void initrecyclelist();
-Individual* getrecycledindividual();
-void recycleindividual(Individual* ind);
-void recyclepopulation();
-
 Population* initpopulation();
 Population nextgeneration();
 void best();

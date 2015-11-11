@@ -1,4 +1,4 @@
-Problema: ../problems/gauss18.txt
+Problema: ../../problems/gauss18.txt
 
 Population: 100
 Generations: 200
