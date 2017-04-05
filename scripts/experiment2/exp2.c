@@ -12,8 +12,9 @@
 
 
 //parâmetros obtidos no experiment1
-#define POPSIZE 200
-#define MAXGENERATIONS 500
+#define PROCESSORQTY 2
+#define POPSIZE 800
+#define MAXGENERATIONS 200
 #define tournamentsize 2
 
 
@@ -30,6 +31,7 @@ char output[10][20] = {"out1","out2","out3","out4","out5","out6","out7","out8","
 int seed[10];
 int globalseed;
 char prob;
+double timeacc[10];
 
 
 void *genalg(void *command)
@@ -49,10 +51,12 @@ void *runAG(void *in)
 	best[index] = 9999999;
 	worst[index] = 0;
 	fitnessacc[index] = 0;
+	timeacc[index] = 0;
 	char command[100];
 	FILE *f;
 	int texp = experiments/threadqty;
-	char buf[10];
+	char buf[32];
+	double tim;
 	pthread_t t;
 
 	if(index == threadqty-1)
@@ -60,19 +64,22 @@ void *runAG(void *in)
 
 	for(i=0,convergence[index]=0;i<texp;i++,seed[index]++)
 	{
-		snprintf(command,100,"../../genalg/genalg %d %s %d %d %d %d %d %s",
-			seed[index],problema,POPSIZE,MAXGENERATIONS,NEXTGENSIZE,MUTATIONRATE,tournamentsize,out);
+		snprintf(command,100,"../../genalg/genalg %d %s %d %d %d %d %d %s %d",
+			seed[index],problema,POPSIZE,MAXGENERATIONS,NEXTGENSIZE,MUTATIONRATE,tournamentsize,out,PROCESSORQTY);
 		//printf("%s\n",command);
 
 		pthread_create(&t, NULL, genalg, command);
 
 		int fd;
 		while((fd = open(out, O_RDONLY))==-1);
-		a = read(fd, buf, 10);
+		a = read(fd, buf, 32);
 		close(fd);
-		fitness = atoi(buf);
+		sscanf(buf,"%d, %lf",&fitness,&tim);
+		// fitness = atoi(buf);
 
 		fitnessacc[index] += fitness;
+		timeacc[index] += tim;
+		// printf("%s\n",buf);
 
 		pthread_join(t, NULL);
 
@@ -98,11 +105,11 @@ void testconvergence()
 {
 	int i,a;
 	struct timeval tim;
-	double exptime,t1,t2;
+	// double exptime,t1,t2;
 	pthread_t threads[10];
 
-	gettimeofday(&tim, NULL);  
-	t1=tim.tv_sec+(tim.tv_usec/1000000.0); 
+	// gettimeofday(&tim, NULL);  
+	// t1=tim.tv_sec+(tim.tv_usec/1000000.0); 
 
 	experiments = 100;
 	threadqty = 4;	
@@ -121,12 +128,14 @@ void testconvergence()
 	int c = convergence[threadqty-1];
 	int w = worst[threadqty-1];
 	int facc = fitnessacc[threadqty-1];
+	double tacc = timeacc[threadqty-1];
 
 	for (i = 0; i < threadqty-1; ++i)
 	{
 		pthread_join(threads[i], NULL);
 
 		facc += fitnessacc[i];
+		tacc += timeacc[i];
 		
 		if(worst[i] > w)
 			w = worst[i];
@@ -143,14 +152,15 @@ void testconvergence()
 	}
 
 	double m = ((double)facc)/((double)experiments);
+	double mt = tacc / ((double)experiments);
 	double m2 = 100*(1-((double)b)/m);
 	double w2 = 100*(1-((double)b)/((double)w));
 
-	gettimeofday(&tim, NULL); 
-	t2=tim.tv_sec+(tim.tv_usec/1000000.0); 
-	exptime = t2-t1;
+	// gettimeofday(&tim, NULL); 
+	// t2=tim.tv_sec+(tim.tv_usec/1000000.0); 
+	// exptime = t2-t1;
 
-	printf("P11%c\t%d\t%d\t%.1f (%.2f%%)\t%d (%.2f%%)\n",prob-32,b,c,m,m2,w,w2);
+	printf("P11%c\t%d\t%d\t%.1f (%.2f%%)\t%d (%.2f%%)\t%.3lf\n",prob-32,b,c,m,m2,w,w2,mt);
 }
 
 

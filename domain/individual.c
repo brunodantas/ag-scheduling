@@ -34,7 +34,7 @@ Individual* newindividual()
 		//if(count==0)
 		//	ind->traits[1][count] = 0;	//obrigar primeiro task a ser alocado no primeiro processador
 		//else
-		ind->traits[1][count] = rand()%2;
+		ind->traits[1][count] = rand()%PROCESSORQTY;
 		count++;
 
 		//adiciona à lista nós cujos predecessores já foram escolhidos
@@ -55,11 +55,23 @@ Individual* newindividual()
 }
 
 
-static inline int max(int a,int b)
+// static inline int max(int a,int b)
+// {
+// 	if(a>b)
+// 		return a;
+// 	return b;
+// }
+
+
+static inline int max(int* arr)
 {
-	if(a>b)
-		return a;
-	return b;
+	int i,m=0;
+	for (i=0;i<PROCESSORQTY;i++)
+	{
+		if (arr[i] > m)
+			m = arr[i];
+	}
+	return m;
 }
 
 
@@ -95,7 +107,11 @@ static inline void gettasktime(Individual *ind, int taskindex, int* totaltime, i
 int evaluate(Individual *ind)
 {
 	int i;
-	int totaltime[2] = {0,0};
+	// int totaltime[2] = {0,0};
+	int* totaltime;
+	totaltime = (int*) malloc(PROCESSORQTY*sizeof(int));
+	for (i=0;i<PROCESSORQTY;i++)
+		totaltime[i] = 0;
 
 	int* timestamps = (int*)  malloc(grafo.n*sizeof(int));
 	totaltime[PROCESSOR[TASK[0]]] += grafo.nodes[TASK[0]].cost;
@@ -108,13 +124,15 @@ int evaluate(Individual *ind)
 		//printf("task: %2d timestamp: %d\n",TASK[i],timestamp[TASK[i]]);
 	}
 	
-	ind->fitness = max(totaltime[0],totaltime[1]);
+	// ind->fitness = max(totaltime[0],totaltime[1]);
+	ind->fitness = max(totaltime);
 
 	// for(i=0;i<grafo.n;i++)
 	// {
 	// 	printf("%d %d\n",TASK[i],timestamp[TASK[i]]);
 	// }
 	
+	// printf("ASDFASDF\n");
 	return ind->fitness;
 }
 
@@ -161,7 +179,11 @@ void mutation(Individual *ind)
 void mutation2(Individual *ind)
 {
 	int a = rand()%grafo.n;
-	ind->traits[1][a] = !ind->traits[1][a];
+	int b = ind->traits[1][a];
+
+	while (b == ind->traits[1][a])
+		b = rand()%PROCESSORQTY;
+	// ind->traits[1][a] = !ind->traits[1][a];
 }
 
 

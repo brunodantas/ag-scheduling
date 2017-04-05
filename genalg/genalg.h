@@ -13,6 +13,7 @@ int POPSIZE;
 int NEXTGENSIZE;
 int MUTATIONRATE; //percent
 int MAXGENERATIONS;
+int PROCESSORQTY;
 Graph grafo;
 Population population;
 Individual *bestindividual;

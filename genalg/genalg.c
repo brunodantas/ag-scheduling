@@ -28,7 +28,7 @@ void runGA(int argc,char* argv[])
 {
 	int i,j,seed,a;
 	char* output;
-	char out[10];
+	char out[32];
 	int fd;
 	struct timeval tim;
 	double exptime,t1,t2;
@@ -43,6 +43,7 @@ void runGA(int argc,char* argv[])
 		MUTATIONRATE = atoi(argv[6]);
 		tournamentsize = atoi(argv[7]);
 		output = argv[8];
+		PROCESSORQTY = atoi(argv[9]);
 		selection = &random_selection;
 		crossover = &cyclecrossover;
 		reinsertion = &bestreinsertion;
@@ -56,23 +57,18 @@ void runGA(int argc,char* argv[])
 	srand(seed);
 	init = 1;
 
-	if(argc<2)
-	{
-		gettimeofday(&tim, NULL);  
-		t1=tim.tv_sec+(tim.tv_usec/1000000.0); 
-	}
+	gettimeofday(&tim, NULL);  
+	t1=tim.tv_sec+(tim.tv_usec/1000000.0); 
 
 	Individual* ind = genalg();
 
-	if(argc<2)
-	{
-		gettimeofday(&tim, NULL); 
-		t2=tim.tv_sec+(tim.tv_usec/1000000.0); 
-	}
+	gettimeofday(&tim, NULL); 
+	t2=tim.tv_sec+(tim.tv_usec/1000000.0); 
+	exptime = t2-t1;
 
 	if(argc>1)
 	{
-		snprintf(out,10,"%d",ind->fitness);
+		snprintf(out,32,"%d, %f",ind->fitness,exptime);
 		fd = mkfifo(output, S_IWUSR | S_IRUSR | S_IRGRP | S_IROTH);;
 		fd = open(output, O_WRONLY);
 		a = write(fd, out, sizeof(out));
@@ -81,7 +77,6 @@ void runGA(int argc,char* argv[])
 	}
 	else
 	{
-		exptime = t2-t1;
 		printf("execution time: %f s\nbest fitness: %d\ncheck output.txt\n",exptime,ind->fitness);
 		FILE *fp = fopen("output.txt", "ab+");
 		fp = freopen("output.txt", "w",stdout);
@@ -90,10 +85,17 @@ void runGA(int argc,char* argv[])
 		for(i=0;i<POPSIZE;i++)
 		{
 			ind = population[i];
-			fprintf(fp,"Individual %d\n\tTraits: ",i);
+			fprintf(fp,"Individual %d\n\tTraits:\n\t\t",i);
 			for(j=0;j<grafo.n;j++)
 			{
-				fprintf(fp,"%d/%d, ",ind->traits[0][j],ind->traits[1][j]);
+				// fprintf(fp,"%d/%d, ",ind->traits[0][j],ind->traits[1][j]);
+				fprintf(fp,"%d\t",ind->traits[0][j]);
+			}
+			fprintf(fp,"\n\t\t");
+			for(j=0;j<grafo.n;j++)
+			{
+				// fprintf(fp,"%d/%d, ",ind->traits[0][j],ind->traits[1][j]);
+				fprintf(fp,"%d\t",ind->traits[1][j]);
 			}
 			fprintf(fp,"\n\tFitness: %d\n",ind->fitness);
 		}
