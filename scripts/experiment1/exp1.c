@@ -125,7 +125,7 @@ void testconvergence()
 	t2=tim.tv_sec+(tim.tv_usec/1000000.0); 
 	exptime = t2-t1;
 
-	printf("P%dG%dT%d\t%d\n",POPSIZE,MAXGENERATIONS,tournamentsize,c);
+	printf("%d\t%d\t%d\n",POPSIZE,MAXGENERATIONS,c);
 }
 
 
@@ -144,7 +144,7 @@ void exp1()
 			if(MAXGENERATIONS == 400)
 				MAXGENERATIONS = 500;
 
-			for(tournamentsize = 2; tournamentsize <= 4; tournamentsize++)
+			for(tournamentsize = 2; tournamentsize <= 2; tournamentsize++)
 			{
 				testconvergence();
 				globalseed++;

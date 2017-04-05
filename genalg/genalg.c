@@ -43,7 +43,7 @@ void runGA(int argc,char* argv[])
 		MUTATIONRATE = atoi(argv[6]);
 		tournamentsize = atoi(argv[7]);
 		output = argv[8];
-		selection = &tournament;
+		selection = &random_selection;
 		crossover = &cyclecrossover;
 		reinsertion = &bestreinsertion;
 	}

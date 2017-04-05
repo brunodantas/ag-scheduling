@@ -54,3 +54,21 @@ Individual* cyclecrossover(Individual *p1,Individual *p2)
 	makevalid(c[1]);
 	return *c;
 }
+
+
+Individual* newcrossover(Individual *p1,Individual *p2)
+{
+	int j;
+	c[0] = allocateindividual();
+	c[1] = allocateindividual();
+
+	for(j=0; j<grafo.n; j++)
+	{
+		c[0]->traits[0][j] = p1->traits[0][j];
+		c[0]->traits[1][j] = p2->traits[1][j];
+		c[1]->traits[0][j] = p2->traits[0][j];
+		c[1]->traits[1][j] = p1->traits[1][j];
+	}
+
+	return *c;
+}

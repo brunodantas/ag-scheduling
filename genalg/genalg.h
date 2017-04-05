@@ -42,8 +42,10 @@ Population nextgeneration();
 void best();
 
 Individual* tournament();
+Individual* random_selection();
 
 Individual* cyclecrossover(Individual *p1,Individual *p2);
+Individual* newcrossover(Individual *p1,Individual *p2);
 
 void bestreinsertion(Population nextgen);
 void elite1reinsertion(Population nextgen);

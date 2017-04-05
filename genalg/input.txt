@@ -1,7 +1,7 @@
 Problema: ../problems/gauss18.txt
 
-Population: 100
-Generations: 200
+Population: 1000
+Generations: 100
 Crossover: 60%
 Mutation: 30%
 Tournament: 2

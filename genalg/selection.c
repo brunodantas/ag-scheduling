@@ -19,3 +19,11 @@ Individual* tournament()
 	}
 	return best;
 }
+
+
+Individual* random_selection()
+{
+	int r;
+	r = rand()%POPSIZE;
+	return population[r];
+}

@@ -12,8 +12,8 @@
 
 
 //parâmetros obtidos no experiment1
-#define POPSIZE 100
-#define MAXGENERATIONS 200
+#define POPSIZE 200
+#define MAXGENERATIONS 500
 #define tournamentsize 2
 
 
@@ -161,11 +161,20 @@ void experiment2()
 	NEXTGENSIZE = 60 * POPSIZE;
 	NEXTGENSIZE /= 100;
 
-	for(prob = 'a';prob <= 'j';prob++)
-	{
-		snprintf(problema,50,"../../problems/%c.txt",prob);
-		testconvergence();
-	}
+	// for(prob = 'f';prob <= 'j';prob++)
+	// {
+	// 	snprintf(problema,50,"../../problems/%c.txt",prob);
+	// 	testconvergence();
+	// }
+	prob = 'f';
+	snprintf(problema,50,"../../problems/f.txt");
+	testconvergence();
+	prob = 'i';
+	snprintf(problema,50,"../../problems/i.txt");
+	testconvergence();
+	prob = 'g';
+	snprintf(problema,50,"../../problems/gauss18.txt");
+	testconvergence();
 
 }
 

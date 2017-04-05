@@ -54,7 +54,9 @@ Population nextgeneration()
 	{
 		//escolha dos pais e crossover
 		p1 = selection();
-		p2 = selection();
+		p2 = p1;
+		while(p2 == p1)
+			p2 = selection();
 		ind = crossover(p1,p2);
 		ind2 = c[1];
 
