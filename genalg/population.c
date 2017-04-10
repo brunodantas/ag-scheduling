@@ -45,13 +45,17 @@ static inline void populationinsert(Population pop,Individual *ind,int size)
 void mutate(Individual* ind, int num)
 {
 	int r;
+	int e = evaluate(ind);
 	if(num < MUTATIONRATE && evaluate(ind)>=bestindividual->fitness)
 	{
-		r = rand()%2;
-		if(r)
-			mutation(ind);
-		else
-			mutation2(ind);
+		while(evaluate(ind) == e)
+		{
+			r = rand()%2;
+			if(r)
+				mutation(ind);
+			else
+				mutation2(ind);
+		}
 	}
 }
 

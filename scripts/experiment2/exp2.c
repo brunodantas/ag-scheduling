@@ -13,14 +13,15 @@
 
 
 //parâmetros obtidos no experiment1
-#define PROCESSORQTY 4
-#define POPSIZE 200
-#define MAXGENERATIONS 500
+#define MINPROCCESSORS 2
+#define PROCESSORQTY 2
+#define POPSIZE 100
+#define MAXGENERATIONS 200
 #define tournamentsize 2
 #define CROSSOVERPERCENT 100
-#define MUTATIONRATE 50
+#define MUTATIONRATE 0
 
-int threadqty;
+int threadqty = 4;
 int experiments = 100;
 int best[10];
 int worst[10];
@@ -34,8 +35,9 @@ int seed[10];
 int globalseed;
 char* prob;
 char problems[6][20] = {"GAUSS12","GAUSS18","GAUSS27","random30","random40","random50"};
-int pqty = 6;
+int pqty = 2;
 double timeacc[10];
+int proc;
 
 
 void *genalg(void *command)
@@ -66,45 +68,42 @@ void *runAG(void *in)
 	if(index == threadqty-1)
 		texp += experiments%threadqty;
 
-	for (p=2; p<=16; p+=2)
+	for(i=0,convergence[index]=0;i<texp;i++,seed[index]++)
 	{
-		for(i=0,convergence[index]=0;i<texp;i++,seed[index]++)
+		snprintf(command,100,"../../genalg/genalg %d %s %d %d %d %d %d %s %d",
+			seed[index],problema,POPSIZE,MAXGENERATIONS,NEXTGENSIZE,MUTATIONRATE,tournamentsize,out,proc);
+		//printf("%s\n",command);
+
+		pthread_create(&t, NULL, genalg, command);
+
+		int fd;
+		while((fd = open(out, O_RDONLY))==-1);
+		a = read(fd, buf, 32);
+		close(fd);
+		sscanf(buf,"%d, %lf",&fitness,&tim);
+		// fitness = atoi(buf);
+
+		fitnessacc[index] += fitness;
+		timeacc[index] += tim;
+		// printf("%s\n",buf);
+
+		pthread_join(t, NULL);
+
+		if(fitness>worst[index])
+			worst[index] = fitness;
+		if(fitness<best[index])
 		{
-			snprintf(command,100,"../../genalg/genalg %d %s %d %d %d %d %d %s %d",
-				seed[index],problema,POPSIZE,MAXGENERATIONS,NEXTGENSIZE,MUTATIONRATE,tournamentsize,out,p);
-			//printf("%s\n",command);
-
-			pthread_create(&t, NULL, genalg, command);
-
-			int fd;
-			while((fd = open(out, O_RDONLY))==-1);
-			a = read(fd, buf, 32);
-			close(fd);
-			sscanf(buf,"%d, %lf",&fitness,&tim);
-			// fitness = atoi(buf);
-
-			fitnessacc[index] += fitness;
-			timeacc[index] += tim;
-			// printf("%s\n",buf);
-
-			pthread_join(t, NULL);
-
-			if(fitness>worst[index])
-				worst[index] = fitness;
-			if(fitness<best[index])
-			{
-				best[index] = fitness;
-				convergence[index] = 1;
-			}
-			else if(fitness==best[index])
-			{
-				convergence[index]++;
-			}
-			//printf("%d\n",fitness);
+			best[index] = fitness;
+			convergence[index] = 1;
 		}
-		snprintf(command,80,"rm %s",out);
-		a = system(command);
+		else if(fitness==best[index])
+		{
+			convergence[index]++;
+		}
+		//printf("%d\n",fitness);
 	}
+	snprintf(command,80,"rm %s",out);
+	a = system(command);
 }
 
 
@@ -117,8 +116,6 @@ void testconvergence()
 
 	// gettimeofday(&tim, NULL);  
 	// t1=tim.tv_sec+(tim.tv_usec/1000000.0); 
-
-	threadqty = 4;	
 
 	//printf("%s\n",problema);
 
@@ -166,7 +163,7 @@ void testconvergence()
 	// t2=tim.tv_sec+(tim.tv_usec/1000000.0); 
 	// exptime = t2-t1;
 
-	printf("%s\t%d\t%d\t%.1f (%.2f%%)\t%d (%.2f%%)\t%.3lf\n",prob,b,c,m,m2,w,w2,mt);
+	printf("%s\t%d\t%d\t%.1f (%.2f%%)\t%d (%.2f%%)\t%.3lf\t%d\n",prob,b,c,m,m2,w,w2,mt,proc);
 }
 
 
@@ -180,11 +177,14 @@ void experiment2()
 	// 	snprintf(problema,50,"../../problems/%c.txt",prob);
 	// 	testconvergence();
 	// }
-	for(i=0;i<pqty;i++)
+	for (proc=MINPROCCESSORS; proc<=PROCESSORQTY; proc+=2)
 	{
-		prob = problems[i];
-		snprintf(problema,50,"../../problems/%s.txt",prob);
-		testconvergence();
+		for(i=0;i<pqty;i++)
+		{
+			prob = problems[i];
+			snprintf(problema,50,"../../problems/%s.txt",prob);
+			testconvergence();
+		}
 	}
 }
 
