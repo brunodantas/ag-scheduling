@@ -9,28 +9,32 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <pthread.h>
 
 
 //parâmetros obtidos no experiment1
-#define PROCESSORQTY 2
-#define POPSIZE 800
-#define MAXGENERATIONS 200
+#define PROCESSORQTY 4
+#define POPSIZE 200
+#define MAXGENERATIONS 500
 #define tournamentsize 2
-
+#define CROSSOVERPERCENT 100
+#define MUTATIONRATE 50
 
 int threadqty;
-int experiments;
+int experiments = 100;
 int best[10];
 int worst[10];
 int fitnessacc[10];
 int convergence[10];
 int threadindex[10];
-int NEXTGENSIZE,MUTATIONRATE;
+int NEXTGENSIZE;
 char problema[50];
 char output[10][20] = {"out1","out2","out3","out4","out5","out6","out7","out8","out9","out10"};
 int seed[10];
 int globalseed;
-char prob;
+char* prob;
+char problems[6][20] = {"GAUSS12","GAUSS18","GAUSS27","random30","random40","random50"};
+int pqty = 6;
 double timeacc[10];
 
 
@@ -44,7 +48,7 @@ void *genalg(void *command)
 //função executada por cada thread
 void *runAG(void *in)
 {
-	int i,a,fitness;
+	int i,a,fitness,p;
 	int index = *(int *)in; //index da thread
 	seed[index] = globalseed+(index*experiments);
 	char* out = output[index];
@@ -62,42 +66,45 @@ void *runAG(void *in)
 	if(index == threadqty-1)
 		texp += experiments%threadqty;
 
-	for(i=0,convergence[index]=0;i<texp;i++,seed[index]++)
+	for (p=2; p<=16; p+=2)
 	{
-		snprintf(command,100,"../../genalg/genalg %d %s %d %d %d %d %d %s %d",
-			seed[index],problema,POPSIZE,MAXGENERATIONS,NEXTGENSIZE,MUTATIONRATE,tournamentsize,out,PROCESSORQTY);
-		//printf("%s\n",command);
-
-		pthread_create(&t, NULL, genalg, command);
-
-		int fd;
-		while((fd = open(out, O_RDONLY))==-1);
-		a = read(fd, buf, 32);
-		close(fd);
-		sscanf(buf,"%d, %lf",&fitness,&tim);
-		// fitness = atoi(buf);
-
-		fitnessacc[index] += fitness;
-		timeacc[index] += tim;
-		// printf("%s\n",buf);
-
-		pthread_join(t, NULL);
-
-		if(fitness>worst[index])
-			worst[index] = fitness;
-		if(fitness<best[index])
+		for(i=0,convergence[index]=0;i<texp;i++,seed[index]++)
 		{
-			best[index] = fitness;
-			convergence[index] = 1;
+			snprintf(command,100,"../../genalg/genalg %d %s %d %d %d %d %d %s %d",
+				seed[index],problema,POPSIZE,MAXGENERATIONS,NEXTGENSIZE,MUTATIONRATE,tournamentsize,out,p);
+			//printf("%s\n",command);
+
+			pthread_create(&t, NULL, genalg, command);
+
+			int fd;
+			while((fd = open(out, O_RDONLY))==-1);
+			a = read(fd, buf, 32);
+			close(fd);
+			sscanf(buf,"%d, %lf",&fitness,&tim);
+			// fitness = atoi(buf);
+
+			fitnessacc[index] += fitness;
+			timeacc[index] += tim;
+			// printf("%s\n",buf);
+
+			pthread_join(t, NULL);
+
+			if(fitness>worst[index])
+				worst[index] = fitness;
+			if(fitness<best[index])
+			{
+				best[index] = fitness;
+				convergence[index] = 1;
+			}
+			else if(fitness==best[index])
+			{
+				convergence[index]++;
+			}
+			//printf("%d\n",fitness);
 		}
-		else if(fitness==best[index])
-		{
-			convergence[index]++;
-		}
-		//printf("%d\n",fitness);
+		snprintf(command,80,"rm %s",out);
+		a = system(command);
 	}
-	snprintf(command,80,"rm %s",out);
-	a = system(command);
 }
 
 
@@ -111,7 +118,6 @@ void testconvergence()
 	// gettimeofday(&tim, NULL);  
 	// t1=tim.tv_sec+(tim.tv_usec/1000000.0); 
 
-	experiments = 100;
 	threadqty = 4;	
 
 	//printf("%s\n",problema);
@@ -160,32 +166,26 @@ void testconvergence()
 	// t2=tim.tv_sec+(tim.tv_usec/1000000.0); 
 	// exptime = t2-t1;
 
-	printf("P11%c\t%d\t%d\t%.1f (%.2f%%)\t%d (%.2f%%)\t%.3lf\n",prob-32,b,c,m,m2,w,w2,mt);
+	printf("%s\t%d\t%d\t%.1f (%.2f%%)\t%d (%.2f%%)\t%.3lf\n",prob,b,c,m,m2,w,w2,mt);
 }
 
 
 void experiment2()
 {
-	MUTATIONRATE = 30;
+	int i;
 	globalseed = time(NULL);
-	NEXTGENSIZE = 60 * POPSIZE;
-	NEXTGENSIZE /= 100;
-
+	NEXTGENSIZE = (CROSSOVERPERCENT * POPSIZE) / 100;
 	// for(prob = 'f';prob <= 'j';prob++)
 	// {
 	// 	snprintf(problema,50,"../../problems/%c.txt",prob);
 	// 	testconvergence();
 	// }
-	prob = 'f';
-	snprintf(problema,50,"../../problems/f.txt");
-	testconvergence();
-	prob = 'i';
-	snprintf(problema,50,"../../problems/i.txt");
-	testconvergence();
-	prob = 'g';
-	snprintf(problema,50,"../../problems/gauss18.txt");
-	testconvergence();
-
+	for(i=0;i<pqty;i++)
+	{
+		prob = problems[i];
+		snprintf(problema,50,"../../problems/%s.txt",prob);
+		testconvergence();
+	}
 }
 
 

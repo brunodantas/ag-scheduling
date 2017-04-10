@@ -42,6 +42,20 @@ static inline void populationinsert(Population pop,Individual *ind,int size)
 }
 
 
+void mutate(Individual* ind, int num)
+{
+	int r;
+	if(num < MUTATIONRATE && evaluate(ind)>=bestindividual->fitness)
+	{
+		r = rand()%2;
+		if(r)
+			mutation(ind);
+		else
+			mutation2(ind);
+	}
+}
+
+
 //retorna um vetor de indivíduos descendentes da população atual
 Population nextgeneration()
 {
@@ -61,46 +75,18 @@ Population nextgeneration()
 		ind2 = c[1];
 
 		//garantia de variedade genética
-		if(evaluate(ind)>=bestindividual->fitness)
-		{
-			r = rand()%2;
-			if(r)
-				mutation(ind);
-			else
-				mutation2(ind);
-		}
-		if(evaluate(ind2)>=bestindividual->fitness)
-		{
-			r = rand()%2;
-			if(r)
-				mutation(ind2);
-			else
-				mutation2(ind2);
-		}
+		mutate(ind,-1);
+		mutate(ind2,-1);
 		
 		//mutação
 		r = rand()%100;
-		if(evaluate(ind)>=bestindividual->fitness && r<MUTATIONRATE)
-		{
-			r = rand()%2;
-			if(r)
-				mutation(ind);
-			else
-				mutation2(ind);
-			evaluate(ind);
-		}
+		mutate(ind,r);
+		evaluate(ind);
 		populationinsert(nextgen,ind,i);
 
 		r = rand()%100;
-		if(i+1 < NEXTGENSIZE && evaluate(ind2)>=bestindividual->fitness && r<MUTATIONRATE)
-		{
-			r = rand()%2;
-			if(r)
-				mutation(ind2);
-			else
-				mutation2(ind2);
-			evaluate(ind2);
-		}
+		mutate(ind2,r);
+		evaluate(ind2);
 		populationinsert(nextgen,ind2,i+1);
 		
 	}

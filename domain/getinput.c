@@ -1,8 +1,35 @@
 #include "../genalg/genalg.h"
 
 
-//leitura de grafo de um arquivo e inicialização da estrutura
+//segundo padrao de input
 void getgraph(char* filename)
+{
+	FILE *file;
+	int i,z;
+	int n,a,b,c;
+
+	file = fopen(filename,"r");
+
+	sscanf(filename, "%*[^0123456789]%d.txt",&n);
+	initgraph(&grafo,n);
+
+	//lê os custos dos nós
+	for(i=0;i<grafo.n;i++)
+	{
+		z = fscanf(file,"%d\n",&grafo.nodes[i].cost);
+	}
+	z = fscanf(file,"%d\n",&a);
+
+	//lê as arestas
+	while(fscanf(file,"%d %d %d\n",&a,&b,&c)!=EOF)
+	{
+		addedge(&grafo,a,b,c);
+	}
+}
+
+
+//leitura de grafo de um arquivo e inicialização da estrutura
+void getgraph2(char* filename)
 {
 	FILE *file;
 	int i,z;
@@ -27,6 +54,8 @@ void getgraph(char* filename)
 		addedge(&grafo,a,b,c);
 	}
 }
+
+
 
 
 //leitura do arquivo input.txt

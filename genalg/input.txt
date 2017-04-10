@@ -1,7 +1,7 @@
-Problem: ../problems/gauss18.txt
+Problem: ../problems/GAUSS18.txt
 
 Processors: 2
-Population: 800
+Population: 100
 Generations: 200
 Crossover: 60%
 Mutation: 30%

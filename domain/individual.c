@@ -133,6 +133,7 @@ int evaluate(Individual *ind)
 	// }
 	
 	// printf("ASDFASDF\n");
+	free(totaltime);
 	return ind->fitness;
 }
 
@@ -183,6 +184,7 @@ void mutation2(Individual *ind)
 
 	while (b == ind->traits[1][a])
 		b = rand()%PROCESSORQTY;
+	ind->traits[1][a] = b;
 	// ind->traits[1][a] = !ind->traits[1][a];
 }
 

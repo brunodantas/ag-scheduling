@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <sys/time.h>
 #include "../domain/datastructures.h"
 #include "../domain/graph.h"
 
@@ -30,6 +31,7 @@ void (*reinsertion)(Population);
 void getgraph(char* filename);
 
 Individual* genalg();
+void getinput();
 
 Individual* newindividual();
 int evaluate(Individual *ind);

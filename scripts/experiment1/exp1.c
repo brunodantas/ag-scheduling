@@ -17,7 +17,7 @@ int best[10];
 int convergence[10];
 int threadindex[10];
 int POPSIZE,NEXTGENSIZE,MAXGENERATIONS,MUTATIONRATE,tournamentsize;
-char problema[50] = "../../problems/gauss18.txt";
+char problema[50] = "../../problems/GAUSS18.txt";
 char output[10][20] = {"out1","out2","out3","out4","out5","out6","out7","out8","out9","out10"};
 int seed[10];
 int globalseed;
