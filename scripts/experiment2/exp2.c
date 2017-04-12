@@ -14,12 +14,12 @@
 
 //parâmetros obtidos no experiment1
 #define MINPROCCESSORS 2
-#define PROCESSORQTY 2
-#define POPSIZE 100
-#define MAXGENERATIONS 200
+#define PROCESSORQTY 16
+#define POPSIZE 200
+#define MAXGENERATIONS 500
 #define tournamentsize 2
 #define CROSSOVERPERCENT 100
-#define MUTATIONRATE 0
+#define MUTATIONRATE 90
 
 int threadqty = 4;
 int experiments = 100;
@@ -35,7 +35,7 @@ int seed[10];
 int globalseed;
 char* prob;
 char problems[6][20] = {"GAUSS12","GAUSS18","GAUSS27","random30","random40","random50"};
-int pqty = 2;
+int pqty = 6;
 double timeacc[10];
 int proc;
 

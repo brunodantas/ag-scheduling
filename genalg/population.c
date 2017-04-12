@@ -42,19 +42,22 @@ static inline void populationinsert(Population pop,Individual *ind,int size)
 }
 
 
-void mutate(Individual* ind, int num)
+void mutate(Individual* ind)
 {
 	int r;
-	int e = evaluate(ind);
-	if(num < MUTATIONRATE && evaluate(ind)>=bestindividual->fitness)
+	int f = evaluate(ind);
+	if(f >= bestindividual->fitness)
 	{
-		while(evaluate(ind) == e)
+		while(1)
 		{
 			r = rand()%2;
 			if(r)
 				mutation(ind);
 			else
 				mutation2(ind);
+
+			if (evaluate(ind) != f)
+				break;
 		}
 	}
 }
@@ -79,18 +82,20 @@ Population nextgeneration()
 		ind2 = c[1];
 
 		//garantia de variedade genética
-		mutate(ind,-1);
-		mutate(ind2,-1);
+		mutate(ind);
+		mutate(ind2);
 		
 		//mutação
 		r = rand()%100;
-		mutate(ind,r);
-		evaluate(ind);
+		if (r < MUTATIONRATE)
+			mutate(ind);
+
 		populationinsert(nextgen,ind,i);
 
 		r = rand()%100;
-		mutate(ind2,r);
-		evaluate(ind2);
+		if (r < MUTATIONRATE)
+			mutate(ind2);
+
 		populationinsert(nextgen,ind2,i+1);
 		
 	}
