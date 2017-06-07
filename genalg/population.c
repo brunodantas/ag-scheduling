@@ -48,17 +48,11 @@ void mutate(Individual* ind)
 	int f = evaluate(ind);
 	if(f >= bestindividual->fitness)
 	{
-		while(1)
-		{
-			r = rand()%2;
-			if(r)
-				mutation(ind);
-			else
-				mutation2(ind);
-
-			if (evaluate(ind) != f)
-				break;
-		}
+		r = rand()%2;
+		if(r)
+			mutation(ind);
+		else
+			mutation2(ind);
 	}
 }
 
@@ -90,12 +84,14 @@ Population nextgeneration()
 		if (r < MUTATIONRATE)
 			mutate(ind);
 
+		evaluate(ind);
 		populationinsert(nextgen,ind,i);
 
 		r = rand()%100;
 		if (r < MUTATIONRATE)
 			mutate(ind2);
 
+		evaluate(ind2);
 		populationinsert(nextgen,ind2,i+1);
 		
 	}

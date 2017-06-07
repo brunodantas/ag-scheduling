@@ -21,7 +21,7 @@
 #define CROSSOVERPERCENT 100
 #define MUTATIONRATE 90
 
-int threadqty = 4;
+int threadqty = 2;
 int experiments = 100;
 int best[10];
 int worst[10];
@@ -34,8 +34,8 @@ char output[10][20] = {"out1","out2","out3","out4","out5","out6","out7","out8","
 int seed[10];
 int globalseed;
 char* prob;
-char problems[6][20] = {"GAUSS12","GAUSS18","GAUSS27","random30","random40","random50"};
-int pqty = 6;
+char problems[7][20] = {"GAUSS44","GAUSS18","GAUSS27", "GAUSS35","random30","random40","random50"};
+int pqty = 1;
 double timeacc[10];
 int proc;
 
