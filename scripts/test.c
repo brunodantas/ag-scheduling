@@ -39,8 +39,8 @@ void getinput()
 	FILE *f;
 
 	f = fopen("input.txt","r");
-	i = fscanf(f,"Processors: %d-%d\nPopulation: %d\nGenerations: %d\nCrossover: %d%%\nMutation: %d%%\n",
-		&MINPROCCESSOR,&MAXPROCESSOR,&POPSIZE,&MAXGENERATIONS,&NEXTGENSIZE,&MUTATIONRATE);
+	i = fscanf(f,"Experiments: %d\nProcessors: %d-%d\nPopulation: %d\nGenerations: %d\nCrossover: %d%%\nMutation: %d%%\n",
+		&experiments, &MINPROCCESSOR,&MAXPROCESSOR,&POPSIZE,&MAXGENERATIONS,&NEXTGENSIZE,&MUTATIONRATE);
 	NEXTGENSIZE *= POPSIZE;
 	NEXTGENSIZE /= 100;
 	fclose(f);
@@ -121,11 +121,10 @@ int main(int argc,char* argv[])
 {
 	int i;
 	seed = time(NULL);
-	experiments = atoi(argv[1]);
 	getinput();
 	printf("\npopulation = %d, generations = %d, crossovers = %d, mutation = %d%%\n\n",POPSIZE,MAXGENERATIONS,NEXTGENSIZE,MUTATIONRATE);
 	printf("%10s\tbest\tconv\t%10s\t%10s\ttime\tprocs\n","grafo","avg","worst");
-	for(i=2;i<argc;i++)
+	for(i=1;i<argc;i++)
 	{
 		for (proc=MINPROCCESSOR; proc<=MAXPROCESSOR; proc+=2)
 		{
