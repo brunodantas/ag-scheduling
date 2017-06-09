@@ -63,10 +63,10 @@ Individual* newindividual()
 // }
 
 
-static inline int max(int* arr)
+static int max(int* arr)
 {
-	int i,m=0;
-	for (i=0;i<PROCESSORQTY;i++)
+	int i,m = arr[0];
+	for (i=1;i<PROCESSORQTY;i++)
 	{
 		if (arr[i] > m)
 			m = arr[i];
@@ -79,7 +79,7 @@ static inline int max(int* arr)
 #define PROCESSOR ind->traits[1]
 
 
-static inline void gettasktime(Individual *ind, int taskindex, int* totaltime, int* timestamp)
+static void gettasktime(Individual *ind, int taskindex, int* totaltime, int* timestamp)
 {
 	int i,a;
 	int max = totaltime[PROCESSOR[taskindex]];

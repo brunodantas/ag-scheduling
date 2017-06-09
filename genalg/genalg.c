@@ -33,6 +33,7 @@ void runGA(int argc,char* argv[])
 	struct timeval tim;
 	double exptime,t1,t2;
 	
+	selection = &random_selection;
 	if(argc>2)
 	{
 		seed = atoi(argv[1]);
@@ -41,10 +42,9 @@ void runGA(int argc,char* argv[])
 		MAXGENERATIONS = atoi(argv[4]);
 		NEXTGENSIZE = atoi(argv[5]);
 		MUTATIONRATE = atoi(argv[6]);
-		tournamentsize = atoi(argv[7]);
+		// tournamentsize = atoi(argv[7]);
 		output = argv[8];
 		PROCESSORQTY = atoi(argv[9]);
-		selection = &random_selection;
 		crossover = &cyclecrossover;
 		reinsertion = &bestreinsertion;
 	}

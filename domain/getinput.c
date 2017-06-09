@@ -68,11 +68,12 @@ void getinput()
 	f = fopen("input.txt","r");
 	i = fscanf(f,"Problem: %s\n\n",problema);
 	getgraph(problema);
-	i = fscanf(f,"Processors: %d\nPopulation: %d\nGenerations: %d\nCrossover: %d%%\nMutation: %d%%\nTournament: %d\n",&PROCESSORQTY,&POPSIZE,&MAXGENERATIONS,&NEXTGENSIZE,&MUTATIONRATE,&tournamentsize);
+	i = fscanf(f,"Processors: %d\nPopulation: %d\nGenerations: %d\nCrossover: %d%%\nMutation: %d%%\nTournament: %d\n",
+		&PROCESSORQTY,&POPSIZE,&MAXGENERATIONS,&NEXTGENSIZE,&MUTATIONRATE,&tournamentsize);
 	NEXTGENSIZE *= POPSIZE;
 	NEXTGENSIZE /= 100;
 
-	selection = &tournament;
+	// selection = &tournament;
 	crossover = &cyclecrossover;
 	reinsertion = &bestreinsertion;
 }

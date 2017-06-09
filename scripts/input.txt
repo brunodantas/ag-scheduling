@@ -1,6 +1,4 @@
-Problem: ../problems/laplace25.txt
-
-Processors: 4
+Processors: 2-2
 Population: 200
 Generations: 500
 Crossover: 100%
