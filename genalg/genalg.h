@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <sys/time.h>
+#include <mpi.h>
 #include "../domain/datastructures.h"
 #include "../domain/graph.h"
 
@@ -15,6 +16,10 @@ int NEXTGENSIZE;
 int MUTATIONRATE; //percent
 int MAXGENERATIONS;
 int PROCESSORQTY;
+int NPOPS;
+int MYRANK;
+int MIGRATIONFREQ;
+int MIGRATIONRATE;
 Graph grafo;
 Population population;
 Individual *bestindividual;
@@ -26,6 +31,7 @@ Individual* c[2];
 Individual* (*selection)(void);
 Individual* (*crossover)(Individual*,Individual*);
 void (*reinsertion)(Population);
+void (*migration)(int);
 
 
 void getgraph(char* filename);
@@ -39,6 +45,7 @@ void mutation(Individual *ind);
 void mutation2(Individual *ind);
 void makevalid(Individual *ind);
 Individual* allocateindividual();
+int compareind(const void * a,const void * b);
 
 Population* initpopulation();
 Population nextgeneration();
@@ -59,5 +66,8 @@ void add(list l,int a);
 int at(list l,int index);
 void erase(list l,int index);
 
+void init_mpop();
+void ring_migration(int generation);
+Individual* best_found();
 
 #endif

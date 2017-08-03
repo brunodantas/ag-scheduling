@@ -1,7 +1,11 @@
-Problem: ../problems/laplace25.txt
+Problem: ../problems/GAUSS44.txt
 
 Processors: 4
-Population: 200
+Population: 1000
 Generations: 500
 Crossover: 100%
 Mutation: 90%
+Tournament: 2
+
+MigrationFreq: 50
+MigrationRate: 10%

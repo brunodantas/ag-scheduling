@@ -17,6 +17,7 @@ Individual* genalg()
 	{
 		nextgen = nextgeneration();
 		reinsertion(nextgen);
+		migration(i);
 	}
 
 	best();
@@ -54,13 +55,18 @@ void runGA(int argc,char* argv[])
 		getinput();
 	}
 
-	srand(seed);
+	init_mpop();
+
+	srand(seed + MYRANK);
 	init = 1;
 
 	gettimeofday(&tim, NULL);  
 	t1=tim.tv_sec+(tim.tv_usec/1000000.0); 
 
-	Individual* ind = genalg();
+	genalg();
+	Individual* ind = best_found();
+	if(MYRANK != 0)
+		return;
 
 	gettimeofday(&tim, NULL); 
 	t2=tim.tv_sec+(tim.tv_usec/1000000.0); 
@@ -105,8 +111,9 @@ void runGA(int argc,char* argv[])
 
 int main(int argc,char* argv[])
 {
+	MPI_Init(&argc, &argv);
 	runGA(argc,argv);
-
+	MPI_Finalize();
 	return 0;
 }
 

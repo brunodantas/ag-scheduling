@@ -19,7 +19,7 @@ int compareind(const void * a,const void * b)
 Population* initpopulation()
 {
 	Individual* ind;
-	population = malloc((POPSIZE+NEXTGENSIZE)*sizeof(Individual*));
+	population = malloc((POPSIZE+NEXTGENSIZE+NPOPS)*sizeof(Individual*));
 	int i,j;
 	for(i=0;i<POPSIZE;++i)
 	{
