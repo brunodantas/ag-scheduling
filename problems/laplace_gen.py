@@ -67,7 +67,7 @@ def makegraph():
 
 	file = open(dot_file,'w')
 	print("generating {}".format(dot_file))
-	file.write("digraph G{\n")
+	file.write("digraph G{\nsplines=false;\n")
 	i = 0
 	for l in range(layer_qty):
 		for w in weights[l]:
