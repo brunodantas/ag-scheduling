@@ -30,6 +30,8 @@ void init_mpop()
 
 	// printf("%d\n", POPSIZE);
 	MIGRATIONRATE = (MIGRATIONRATE * POPSIZE) / 100;
+	if(MIGRATIONRATE == 0)	//prevent empty migration
+		MIGRATIONRATE = 1;
 	migration = &ring_migration;
 	size_ind = 2*grafo.n + 1;
 	mbuffer_size = MIGRATIONRATE * size_ind;

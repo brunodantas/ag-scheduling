@@ -1,6 +1,11 @@
-Experiments: 100
+Experiments: 1
 Processors: 2-2
 Population: 200
-Generations: 500
-Crossover: 100%
+Generations: 200
+Crossover: 60%
 Mutation: 90%
+Tournament: 2
+
+MigrationFreq: 50
+MigrationRate: 10%
+Populations: 2

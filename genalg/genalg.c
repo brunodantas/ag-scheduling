@@ -46,6 +46,8 @@ void runGA(int argc,char* argv[])
 		// tournamentsize = atoi(argv[7]);
 		output = argv[8];
 		PROCESSORQTY = atoi(argv[9]);
+		MIGRATIONFREQ = atoi(argv[10]);
+		MIGRATIONRATE = atoi(argv[11]);
 		crossover = &cyclecrossover;
 		reinsertion = &bestreinsertion;
 	}
@@ -55,16 +57,20 @@ void runGA(int argc,char* argv[])
 		getinput();
 	}
 
-	init_mpop();
+	init_mpop(); //sets subpopulations
 
 	srand(seed + MYRANK);
 	init = 1;
 
-	gettimeofday(&tim, NULL);  
-	t1=tim.tv_sec+(tim.tv_usec/1000000.0); 
+	if(MYRANK == 0)
+	{
+		gettimeofday(&tim, NULL);  
+		t1=tim.tv_sec+(tim.tv_usec/1000000.0); 
+	}
 
 	genalg();
 	Individual* ind = best_found();
+	
 	if(MYRANK != 0)
 		return;
 
