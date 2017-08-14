@@ -31,7 +31,6 @@ void runGA(int argc,char* argv[])
 	char* output;
 	char out[32];
 	int fd;
-	struct timeval tim;
 	double exptime,t1,t2;
 	
 	selection = &random_selection;
@@ -64,8 +63,7 @@ void runGA(int argc,char* argv[])
 
 	if(MYRANK == 0)
 	{
-		gettimeofday(&tim, NULL);  
-		t1=tim.tv_sec+(tim.tv_usec/1000000.0); 
+		t1 = MPI_Wtime();
 	}
 
 	genalg();
@@ -74,8 +72,7 @@ void runGA(int argc,char* argv[])
 	if(MYRANK != 0)
 		return;
 
-	gettimeofday(&tim, NULL); 
-	t2=tim.tv_sec+(tim.tv_usec/1000000.0); 
+	t2 = MPI_Wtime();
 	exptime = t2-t1;
 
 	if(argc>1)
