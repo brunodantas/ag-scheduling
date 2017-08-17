@@ -9,7 +9,6 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
-#include <pthread.h>
 
 int MINPROCCESSOR;
 int MAXPROCESSOR;
@@ -28,7 +27,6 @@ int worst;
 int fitnessacc;
 int convergence;
 char problema[50];
-char output[10] = "out";
 int seed;
 char prob[20];
 double timeacc;
@@ -50,43 +48,30 @@ void getinput()
 }
 
 
-//thread needed to call the other process
-void *genalg(void *command)
-{
-	int a = system((char*) command);
-	return NULL;
-}
-
-
 void testconvergence()
 {
 	int i,a,fitness,p;
-	char* out = output;
 	best = 9999999;
 	worst = 0;
 	fitnessacc = 0;
 	timeacc = 0;
 	char command[100];
 	FILE *f;
-	char buf[32];
+	// char buf[32];
+	char* buf;
 	double tim;
-	pthread_t t;
+	size_t len = 32;
 
 	convergence=0;
 	for(i=0;i<experiments;i++,seed+=NPOPS)
 	{
-		snprintf(command,100,"mpiexec -n %d ../genalg/genalg %d %s %d %d %d %d %d %s %d %d %d",
-			NPOPS,seed,problema,POPSIZE,MAXGENERATIONS,NEXTGENSIZE,MUTATIONRATE,tournamentsize,out,proc,MIGRATIONFREQ,MIGRATIONRATE);
+		snprintf(command,100,"mpiexec -n %d ../genalg/genalg %d %s %d %d %d %d %d %d %d %d",
+			NPOPS,seed,problema,POPSIZE,MAXGENERATIONS,NEXTGENSIZE,MUTATIONRATE,tournamentsize,proc,MIGRATIONFREQ,MIGRATIONRATE);
 
 		// printf("%s\n",command);
-		pthread_create(&t, NULL, genalg, command);
-
-		int fd;
-		while((fd = open(out, O_RDONLY))==-1)
-			usleep(10);
-		pthread_join(t, NULL);
-		a = read(fd, buf, 32);
-		close(fd);
+		f = popen(command,"r");
+		while (getline(&buf, &len, f) != -1);
+		pclose(f);
 		sscanf(buf,"%d, %lf",&fitness,&tim);
 
 		fitnessacc += fitness;
@@ -104,8 +89,6 @@ void testconvergence()
 			convergence++;
 		}
 	}
-	snprintf(command,80,"rm %s",out);
-	a = system(command);
 
 	double m = ((double)fitnessacc)/((double)experiments);
 	double mt = timeacc / ((double)experiments);
@@ -124,6 +107,11 @@ void testconvergence()
 int main(int argc,char* argv[])
 {
 	int i;
+	if (argc < 2)
+	{
+		printf("usage: %s {list of problem files}\n",argv[0]);
+		return 1;
+	}
 	seed = time(NULL);
 	getinput();
 	printf("\nexperiments: %d\npopulation = %d, generations = %d, crossovers = %d, mutation = %d%%, subpopulations = %d, migrationfreq = %d, migrationrate = %d%%\n\n",experiments,POPSIZE,MAXGENERATIONS,NEXTGENSIZE,MUTATIONRATE,NPOPS,MIGRATIONFREQ,MIGRATIONRATE);

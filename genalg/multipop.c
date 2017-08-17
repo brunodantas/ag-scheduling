@@ -9,7 +9,7 @@ int mbuffer_size;
 int* migration_buffer;
 int* recv_buffer;
 
-void do_nothing(int x);
+void do_nothing(int x){}
 
 
 void init_mpop()
@@ -182,5 +182,3 @@ Individual* best_found()
 	return bestindividual;
 }
 
-
-void do_nothing(int x){}

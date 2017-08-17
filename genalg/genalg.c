@@ -28,8 +28,6 @@ Individual* genalg()
 void runGA(int argc,char* argv[])
 {
 	int i,j,seed,a;
-	char* output;
-	char out[32];
 	int fd;
 	double exptime,t1,t2;
 	
@@ -42,11 +40,10 @@ void runGA(int argc,char* argv[])
 		MAXGENERATIONS = atoi(argv[4]);
 		NEXTGENSIZE = atoi(argv[5]);
 		MUTATIONRATE = atoi(argv[6]);
-		// tournamentsize = atoi(argv[7]);
-		output = argv[8];
-		PROCESSORQTY = atoi(argv[9]);
-		MIGRATIONFREQ = atoi(argv[10]);
-		MIGRATIONRATE = atoi(argv[11]);
+		tournamentsize = atoi(argv[7]);
+		PROCESSORQTY = atoi(argv[8]);
+		MIGRATIONFREQ = atoi(argv[9]);
+		MIGRATIONRATE = atoi(argv[10]);
 		crossover = &cyclecrossover;
 		reinsertion = &bestreinsertion;
 	}
@@ -68,7 +65,7 @@ void runGA(int argc,char* argv[])
 
 	genalg();
 	Individual* ind = best_found();
-	
+
 	if(MYRANK != 0)
 		return;
 
@@ -77,12 +74,7 @@ void runGA(int argc,char* argv[])
 
 	if(argc>1)
 	{
-		snprintf(out,32,"%d, %f",ind->fitness,exptime);
-		fd = mkfifo(output, S_IWUSR | S_IRUSR | S_IRGRP | S_IROTH);;
-		fd = open(output, O_WRONLY);
-		a = write(fd, out, sizeof(out));
-    	close(fd);
-    	unlink(out);
+		printf("%d, %f",ind->fitness,exptime);
 	}
 	else
 	{
