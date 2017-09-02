@@ -17,8 +17,6 @@ def makegraph():
 			v = vertices.pop(0)
 			layers[i].append(v)	
 
-	# print(layers)
-
 	weights = dict()
 	edge_weights = dict()
 	w0 = ([1] + [2*x for x in range(1,graph_size)]) [::-1]
@@ -28,8 +26,6 @@ def makegraph():
 		for v in layers[l]:
 			weights[v] = wn[l]
 		weights[ layers[l][0] ] = w0[l]
-
-	# print(weights)
 
 	edges = []
 
@@ -63,8 +59,6 @@ def makegraph():
 	edges.append((v1,v2))
 	edge_weights[v1,v2] = 12
 
-	# print(edges)
-
 	txt_file = "gauss{}.txt".format(vertex_qty)
 	dot_file = "gauss{}.dot".format(vertex_qty)
 	png_file = "gauss{}.png".format(vertex_qty)
@@ -81,7 +75,7 @@ def makegraph():
 
 	file = open(dot_file,'w')
 	print("generating {}".format(dot_file))
-	file.write("digraph G{\n") #\tsplines=false; #rankdir=LR;
+	file.write("digraph G{\n\tsplines=polyline\n\tnodesep=0.5\n\tranksep=0.8")
 
 	for v in range(vertex_qty):
 		file.write("\tv{} [label = \"T{}\\n{}\"]\n".format(v,v,weights[v]))
@@ -92,38 +86,14 @@ def makegraph():
 		if edge_weights[(v1,v2)] == 8:
 			s += "[style=dashed]"
 		file.write("{}\n".format(s))
-		# file.write("\tv{} -> v{} [label = \"{}\"]\n".format(v1,v2,edge_weights[(v1,v2)]))
 
 	i = 0
 	for l in range(layer_qty):
-		# v = layers[l][0]
-		# s = "\t{rank = same; v" + str(v) + "; "
-		# for _ in range(graph_size+1):
-		# 	s += "i" + str(i) + " [style=invis]; "
-		# 	i+=1
-		# s += '}'
-		# file.write("{}\n".format(s))
-		# i -= graph_size
-		# for _ in range(graph_size+1):
-		# 	s = "\tv{} -> i{} ;".format(v,i-1)
-		# 	i+=1
-		# 	file.write("{}\n".format(s))
-
 		s = "\t{rank = same; "
-		for v in layers[l][1::]:
+		for v in layers[l]:
 			s += "v" + str(v) + "; "
 		s += '}'
 		file.write("{}\n".format(s))
-
-	# for l in range(graph_size):
-	# 	s = "\t{rank = same; "
-	# 	for i in range(graph_size):
-	# 		try:
-	# 			v = layers[i][l]
-	# 			s += "v" + str(v) + "; "
-	# 		except: pass
-	# 	s += '}'
-	# 	file.write("{}\n".format(s))
 
 	file.write("}")
 	file.close()
@@ -134,9 +104,9 @@ def makegraph():
 	process = subprocess.Popen(bashCommand.split(), stdout=subprocess.PIPE)
 	output, error = process.communicate()
 
-	# bashCommand = "rm {}".format(dot_file)
-	# process = subprocess.Popen(bashCommand.split(), stdout=subprocess.PIPE)
-	# output, error = process.communicate()
+	bashCommand = "rm {}".format(dot_file)
+	process = subprocess.Popen(bashCommand.split(), stdout=subprocess.PIPE)
+	output, error = process.communicate()
 
 if __name__ == '__main__':
 	graph_size = int(sys.argv[1])
