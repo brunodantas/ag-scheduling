@@ -29,12 +29,12 @@ Individual* newindividual()
 		currenttaskid = at(availabletasks,r);
 		erase(availabletasks,r);
 
-		ind->traits[0][count] = currenttaskid;
+		ind->sequence[count] = currenttaskid;
 
 		//if(count==0)
-		//	ind->traits[1][count] = 0;	//obrigar primeiro task a ser alocado no primeiro processador
+		//	ind->processors[count] = 0;	//obrigar primeiro task a ser alocado no primeiro processador
 		//else
-		ind->traits[1][count] = rand()%PROCESSORQTY;
+		ind->processors[count] = rand()%PROCESSORQTY;
 		count++;
 
 		//adiciona à lista nós cujos predecessores já foram escolhidos
@@ -75,8 +75,8 @@ static int max(int* arr)
 }
 
 
-#define TASK ind->traits[0]
-#define PROCESSOR ind->traits[1]
+#define TASK ind->sequence
+#define PROCESSOR ind->processors
 
 
 static void gettasktime(Individual *ind, int taskindex, int* totaltime, int* timestamp)
@@ -152,20 +152,20 @@ void mutation(Individual *ind)
 	//printf("%d\t%d\n",a,b);
 
 	for(i=0;i<grafo.n;i++)
-		genes[i] = ind->traits[0][i];
+		genes[i] = ind->sequence[i];
 
-	temp[0] = ind->traits[0][a];
-	temp[1] = ind->traits[1][a];
-	ind->traits[0][a] = ind->traits[0][b];
-	ind->traits[1][a] = ind->traits[1][b];
-	ind->traits[0][b] = temp[0];
-	ind->traits[1][b] = temp[1];
+	temp[0] = ind->sequence[a];
+	temp[1] = ind->processors[a];
+	ind->sequence[a] = ind->sequence[b];
+	ind->processors[a] = ind->processors[b];
+	ind->sequence[b] = temp[0];
+	ind->processors[b] = temp[1];
 
 	makevalid(ind);
 
 	for(i=0;i<grafo.n;i++)
 	{
-		if(genes[i] != ind->traits[0][i])
+		if(genes[i] != ind->sequence[i])
 		{
 			free(genes);
 			return;
@@ -180,12 +180,12 @@ void mutation(Individual *ind)
 void mutation2(Individual *ind)
 {
 	int a = rand()%grafo.n;
-	int b = ind->traits[1][a];
+	int b = ind->processors[a];
 
-	while (b == ind->traits[1][a])
+	while (b == ind->processors[a])
 		b = rand()%PROCESSORQTY;
-	ind->traits[1][a] = b;
-	// ind->traits[1][a] = !ind->traits[1][a];
+	ind->processors[a] = b;
+	// ind->processors[a] = !ind->processors[a];
 }
 
 
@@ -206,8 +206,8 @@ void makevalid(Individual *ind)
 
 	for(i=0; i<grafo.n; i++)
 	{
-		add(genes[0],ind->traits[0][i]);
-		add(genes[1],ind->traits[1][i]);
+		add(genes[0],ind->sequence[i]);
+		add(genes[1],ind->processors[i]);
 		predecessorsleft[i] = grafo.nodes[i].predqty;
 	}
 
@@ -234,10 +234,10 @@ void makevalid(Individual *ind)
 	free(genes[1]->info);
 	free(genes[0]);
 	free(genes[1]);
-	free(ind->traits[0]);
-	free(ind->traits[1]);
-	ind->traits[0] = newgenes[0];
-	ind->traits[1] = newgenes[1];
+	free(ind->sequence);
+	free(ind->processors);
+	ind->sequence = newgenes[0];
+	ind->processors = newgenes[1];
 }
 
 
@@ -245,8 +245,8 @@ Individual* allocateindividual()
 {
 	Individual* ind;
 	ind = (Individual*) malloc(sizeof(Individual));
-	ind->traits[0] = (int*)  malloc(grafo.n*sizeof(int));
-	ind->traits[1] = (int*)  malloc(grafo.n*sizeof(int));
+	ind->sequence = (int*)  malloc(grafo.n*sizeof(int));
+	ind->processors = (int*)  malloc(grafo.n*sizeof(int));
 	
 	return ind;
 }

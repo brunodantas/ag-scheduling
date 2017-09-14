@@ -2,8 +2,9 @@
 
 typedef struct
 {
-	int *traits[2]; //sequência de duplas tarefa/processador
-	int fitness; //aptidão do indivíduo (menor é melhor)
+	int *sequence; //task sequence
+	int *processors; //task-processor mapping 
+	int fitness; //less is better
 }Individual;
 
 typedef Individual** Population;

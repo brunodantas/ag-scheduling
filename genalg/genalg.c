@@ -89,14 +89,14 @@ void runGA(int argc,char* argv[])
 			fprintf(fp,"Individual %d\n\tTraits:\n\t\t",i);
 			for(j=0;j<grafo.n;j++)
 			{
-				// fprintf(fp,"%d/%d, ",ind->traits[0][j],ind->traits[1][j]);
-				fprintf(fp,"%d\t",ind->traits[0][j]);
+				// fprintf(fp,"%d/%d, ",ind->sequence[j],ind->processors[j]);
+				fprintf(fp,"%d\t",ind->sequence[j]);
 			}
 			fprintf(fp,"\n\t\t");
 			for(j=0;j<grafo.n;j++)
 			{
-				// fprintf(fp,"%d/%d, ",ind->traits[0][j],ind->traits[1][j]);
-				fprintf(fp,"%d\t",ind->traits[1][j]);
+				// fprintf(fp,"%d/%d, ",ind->sequence[j],ind->processors[j]);
+				fprintf(fp,"%d\t",ind->processors[j]);
 			}
 			fprintf(fp,"\n\tFitness: %d\n",ind->fitness);
 		}
@@ -125,6 +125,6 @@ int main(int argc,char* argv[])
 
 // 	printf("best individual:\n");
 // 	for(i=0;i<grafo.n;i++)
-// 		printf("%d/%d,",ind->traits[0][i],ind->traits[1][i]);
+// 		printf("%d/%d,",ind->sequence[i],ind->processors[i]);
 // 	printf("\nFitness: %d\n",ind->fitness);
 // }

@@ -61,14 +61,14 @@ void ring_migration(int generation)
 	// 		printf("Individual %d\nTraits:\n",i);
 	// 		for(j=0;j<grafo.n;j++)
 	// 		{
-	// 			// fprintf(fp,"%d/%d, ",ind->traits[0][j],ind->traits[1][j]);
-	// 			printf("%d ",ind->traits[0][j]);
+	// 			// fprintf(fp,"%d/%d, ",ind->sequence[j],ind->processors[j]);
+	// 			printf("%d ",ind->sequence[j]);
 	// 		}
 	// 		printf("\n");
 	// 		for(j=0;j<grafo.n;j++)
 	// 		{
-	// 			// fprintf(fp,"%d/%d, ",ind->traits[0][j],ind->traits[1][j]);
-	// 			printf("%d ",ind->traits[1][j]);
+	// 			// fprintf(fp,"%d/%d, ",ind->sequence[j],ind->processors[j]);
+	// 			printf("%d ",ind->processors[j]);
 	// 		}
 	// 		printf("\n\tFitness: %d\n",ind->fitness);
 	// 	}
@@ -80,9 +80,9 @@ void ring_migration(int generation)
 	{
 		for(j=0;j<grafo.n;j++)
 		{
-			migration_buffer[k] = population[i]->traits[0][j];
+			migration_buffer[k] = population[i]->sequence[j];
 			k++;
-			migration_buffer[k] = population[i]->traits[1][j];
+			migration_buffer[k] = population[i]->processors[j];
 			k++;
 			// printf("%d/%d ",migration_buffer[k-2],migration_buffer[k-1]);
 		}
@@ -99,9 +99,9 @@ void ring_migration(int generation)
 	{
 		for(j=0;j<grafo.n;j++)
 		{
-			population[i]->traits[0][j] = migration_buffer[k];
+			population[i]->sequence[j] = migration_buffer[k];
 			k++;
-			population[i]->traits[1][j] = migration_buffer[k];
+			population[i]->processors[j] = migration_buffer[k];
 			k++;
 		}
 		population[i]->fitness = migration_buffer[k];
@@ -119,14 +119,14 @@ void ring_migration(int generation)
 	// 		printf("Individual %d\nTraits:\n",i);
 	// 		for(j=0;j<grafo.n;j++)
 	// 		{
-	// 			// fprintf(fp,"%d/%d, ",ind->traits[0][j],ind->traits[1][j]);
-	// 			printf("%d ",ind->traits[0][j]);
+	// 			// fprintf(fp,"%d/%d, ",ind->sequence[j],ind->processors[j]);
+	// 			printf("%d ",ind->sequence[j]);
 	// 		}
 	// 		printf("\n");
 	// 		for(j=0;j<grafo.n;j++)
 	// 		{
-	// 			// fprintf(fp,"%d/%d, ",ind->traits[0][j],ind->traits[1][j]);
-	// 			printf("%d ",ind->traits[1][j]);
+	// 			// fprintf(fp,"%d/%d, ",ind->sequence[j],ind->processors[j]);
+	// 			printf("%d ",ind->processors[j]);
 	// 		}
 	// 		printf("\n\tFitness: %d\n",ind->fitness);
 	// 	}
@@ -145,9 +145,9 @@ Individual* best_found()
 	k=0;
 	for(j=0;j<grafo.n;j++)
 	{
-		migration_buffer[k] = bestindividual->traits[0][j];
+		migration_buffer[k] = bestindividual->sequence[j];
 		k++;
-		migration_buffer[k] = bestindividual->traits[1][j];
+		migration_buffer[k] = bestindividual->processors[j];
 		k++;
 		// printf("%d/%d ",migration_buffer[k-2],migration_buffer[k-1]);
 	}
@@ -167,9 +167,9 @@ Individual* best_found()
 	{
 		for(j=0;j<grafo.n;j++)
 		{
-			population[i]->traits[0][j] = recv_buffer[k];
+			population[i]->sequence[j] = recv_buffer[k];
 			k++;
-			population[i]->traits[1][j] = recv_buffer[k];
+			population[i]->processors[j] = recv_buffer[k];
 			k++;
 		}
 		population[i]->fitness = recv_buffer[k];
