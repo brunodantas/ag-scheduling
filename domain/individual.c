@@ -63,7 +63,7 @@ Individual* newindividual()
 // }
 
 
-static int max(int* arr)
+static int makespan(int* arr)
 {
 	int i,m = arr[0];
 	for (i=1;i<PROCESSORQTY;i++)
@@ -75,65 +75,62 @@ static int max(int* arr)
 }
 
 
-#define TASK ind->sequence
-#define PROCESSOR ind->processors
-
-
 static void gettasktime(Individual *ind, int taskindex, int* totaltime, int* timestamp)
 {
-	int i,a;
-	int max = totaltime[PROCESSOR[taskindex]];
+	int processor = ind->processors[taskindex];
+	int max = totaltime[processor];
+	// int task = ind->sequence[taskindex];
+	int t;
+	Node* task = &grafo.nodes[taskindex];
+	Node* parent;
 	Edge e;
 
-	for(i=0; i<taskindex; i++)
+	for(e = task->predecessors; e!=NULL; e=e->next)
 	{
-		for(e = grafo.nodes[TASK[taskindex]].predecessors; e!=NULL; e=e->next)
+		parent = e->node;
+		if(processor != ind->processors[parent->id]) //if scheduled to different processor
 		{
-			if(e->node->id == TASK[i] && PROCESSOR[i] != PROCESSOR[taskindex]) //se é predecessor e foi executado em processador diferente
-			{
-				a = timestamp[TASK[i]] + e->node->cost + e->cost;
-				if(a>max)
-					max = a;
-			}
+			t = timestamp[parent->id] + parent->cost + e->cost;
+			if(t > max)
+				max = t;
 		}
 	}
-
-	timestamp[TASK[taskindex]] = max;
-	totaltime[PROCESSOR[taskindex]] = max + grafo.nodes[TASK[taskindex]].cost;
+	timestamp[taskindex] = max;
+	totaltime[processor] = max + task->cost;
 }
 
 
 //calcula e seta aptidão do indivíduo
 int evaluate(Individual *ind)
 {
-	int i;
-	// int totaltime[2] = {0,0};
-	int* totaltime;
+	int i,task;
+	int* totaltime;		//processor time
+	int* timestamps;	//task init time
+
 	totaltime = (int*) malloc(PROCESSORQTY*sizeof(int));
 	for (i=0;i<PROCESSORQTY;i++)
 		totaltime[i] = 0;
 
-	int* timestamps = (int*)  malloc(grafo.n*sizeof(int));
-	totaltime[PROCESSOR[TASK[0]]] += grafo.nodes[TASK[0]].cost;
-	timestamps[TASK[0]] = 0;
+	timestamps = (int*)  malloc(grafo.n*sizeof(int));
 
-	for(i=1; i<grafo.n; i++)
+	for(i=0; i<grafo.n; i++)
 	{
-		gettasktime(ind, i, totaltime, timestamps);
+		task = ind->sequence[i];
+		gettasktime(ind, task, totaltime, timestamps);
 
-		//printf("task: %2d timestamp: %d\n",TASK[i],timestamp[TASK[i]]);
+		//printf("task: %2d timestamp: %d\n",ind->sequence[i],timestamp[ind->sequence[i]]);
 	}
 	
 	// ind->fitness = max(totaltime[0],totaltime[1]);
-	ind->fitness = max(totaltime);
+	ind->fitness = makespan(totaltime);
 
 	// for(i=0;i<grafo.n;i++)
 	// {
-	// 	printf("%d %d\n",TASK[i],timestamp[TASK[i]]);
+	// 	printf("%d %d\n",ind->sequence[i],timestamp[ind->sequence[i]]);
 	// }
 	
-	// printf("ASDFASDF\n");
 	free(totaltime);
+	free(timestamps);
 	return ind->fitness;
 }
 
