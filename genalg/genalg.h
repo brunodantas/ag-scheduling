@@ -32,6 +32,7 @@ Individual* (*selection)(void);
 Individual* (*crossover)(Individual*,Individual*);
 void (*reinsertion)(Population);
 void (*migration)(int);
+char problema[50];
 
 
 void getgraph(char* filename);
@@ -41,6 +42,7 @@ void getinput();
 
 Individual* newindividual();
 int evaluate(Individual *ind);
+void gettasktime(Individual *ind, int taskindex, int* totaltime, int* timestamp);
 void mutation(Individual *ind);
 void mutation2(Individual *ind);
 void makevalid(Individual *ind);

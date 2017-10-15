@@ -72,12 +72,14 @@ void runGA(int argc,char* argv[])
 	t2 = MPI_Wtime();
 	exptime = t2-t1;
 
-	if(argc>1)
+	if(argc>1)	//send data to parent process
 	{
 		printf("%d, %f",ind->fitness,exptime);
 	}
-	else
+
+	else		//handle output, visualization
 	{
+		printf("%s\npopulation = %d, generations = %d, crossovers = %d, mutation = %d%%, subpopulations = %d, migrationfreq = %d, migrationrate = %d%%\n\n",problema,POPSIZE,MAXGENERATIONS,NEXTGENSIZE,MUTATIONRATE,NPOPS,MIGRATIONFREQ,MIGRATIONRATE);
 		printf("execution time: %f s\nbest fitness: %d\ncheck output.txt\n",exptime,ind->fitness);
 		FILE *fp = fopen("output.txt", "ab+");
 		fp = freopen("output.txt", "w",stdout);
@@ -100,6 +102,29 @@ void runGA(int argc,char* argv[])
 			}
 			fprintf(fp,"\n\tFitness: %d\n",ind->fitness);
 		}
+		fclose(fp);
+
+		//gantt chart
+		int task;
+		int* timestamps = (int*) malloc(grafo.n*sizeof(int));	//task init time
+		int* totaltime = (int*) malloc(PROCESSORQTY*sizeof(int));
+		for (i=0;i<PROCESSORQTY;i++)
+			totaltime[i] = 0;
+
+		fp = fopen("best.txt", "ab+");
+		fp = freopen("best.txt", "w",stdout);
+		fprintf(fp,"tid,start,duration,pid\n");
+
+		for(i=0; i<grafo.n; i++)
+		{
+			task = bestindividual->sequence[i];
+			gettasktime(bestindividual, task, totaltime, timestamps);
+			fprintf(fp,"%d,%d,%d,%d\n",task,timestamps[task],
+				grafo.nodes[i].cost, bestindividual->processors[task]);
+		}
+		fclose(fp);
+		fp = popen("python3 ../scripts/gantt.py","r");
+		pclose(fp);
 	}
 }
 

@@ -75,7 +75,7 @@ static int makespan(int* arr)
 }
 
 
-static void gettasktime(Individual *ind, int taskindex, int* totaltime, int* timestamp)
+void gettasktime(Individual *ind, int taskindex, int* totaltime, int* timestamp)
 {
 	int processor = ind->processors[taskindex];
 	int max = totaltime[processor];

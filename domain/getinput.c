@@ -63,7 +63,6 @@ void getinput()
 {
 	int i;
 	FILE *f;
-	char problema[50];
 
 	f = fopen("input.txt","r");
 	i = fscanf(f,"Problem: %s\n\n",problema);
