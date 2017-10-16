@@ -173,8 +173,48 @@ void mutation(Individual *ind)
 }
 
 
+//retorna 1 se existe a->b
+int is_predecessor(int a, int b)
+{
+	int i;
+	Edge e = grafo.nodes[b].predecessors;
+	while(e!=NULL)
+	{
+		if(e->node->id == a)
+			return 1;
+		e = e->next;
+	}
+	return 0;
+}
+
+
+//troca duas tarefas adjacentes de lugar
+void mutation_swap(Individual *ind)
+{
+	int i,a,taskindex,flag=0,aux;
+	list positions = newlist(grafo.n);
+	for(i=1;i<grafo.n;i++)
+		add(positions,i);
+	for(;flag==0 && positions->size > 0;)
+	{
+		a = rand()%positions->size;
+		taskindex = at(positions,a);
+		erase(positions,a);
+
+		if(!is_predecessor(ind->sequence[taskindex-1], ind->sequence[taskindex]))
+		{
+			aux = ind->sequence[taskindex-1];
+			ind->sequence[taskindex-1] = ind->sequence[taskindex];
+			ind->sequence[taskindex] = aux;
+			flag = 1;
+		}
+	}
+	free(positions);
+}
+
+
 //troca o processador de uma tarefa
-void mutation2(Individual *ind)
+void mutation_proc(Individual *ind)
 {
 	int a = rand()%grafo.n;
 	int b = ind->processors[a];

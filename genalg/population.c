@@ -52,7 +52,7 @@ void mutate(Individual* ind)
 		if(r)
 			mutation(ind);
 		else
-			mutation2(ind);
+			mutation_proc(ind);
 	}
 }
 
