@@ -120,7 +120,7 @@ void runGA(int argc,char* argv[])
 			task = bestindividual->sequence[i];
 			gettasktime(bestindividual, task, totaltime, timestamps);
 			fprintf(fp,"%d,%d,%d,%d\n",task,timestamps[task],
-				grafo.nodes[i].cost, bestindividual->processors[task]);
+				grafo.nodes[task].cost, bestindividual->processors[task]);
 		}
 		fclose(fp);
 		fp = popen("python3 ../scripts/gantt.py","r");
