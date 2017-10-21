@@ -8,7 +8,7 @@
 Individual* genalg()
 {
 	Population nextgen;
-	int i,j;
+	int i;
 
 	initpopulation();
 
@@ -27,7 +27,7 @@ Individual* genalg()
 
 void runGA(int argc,char* argv[])
 {
-	int i,j,seed,a;
+	int i,j,seed;
 	double exptime,t1,t2;
 	
 	selection = &tournament;

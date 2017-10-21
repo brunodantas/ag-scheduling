@@ -35,7 +35,6 @@ Population* initpopulation()
 }
 
 
-//insere indivíduo ordenado pela aptidão
 static inline void populationinsert(Population pop,Individual *ind,int size)
 {
 	pop[size] = ind;

@@ -21,7 +21,6 @@ void init_mpop()
 	POPSIZE /= NPOPS;
 	NEXTGENSIZE *= POPSIZE;
 	NEXTGENSIZE /= 100;
-
 	if(NPOPS == 1)
 	{
 		migration = &do_nothing;
@@ -152,7 +151,6 @@ Individual* best_found()
 		// printf("%d/%d ",migration_buffer[k-2],migration_buffer[k-1]);
 	}
 	migration_buffer[k] = bestindividual->fitness;
-	// k++;
 	// printf("\n%d\n", migration_buffer[k-1]);
 
 	MPI_Gather(migration_buffer,size_ind,MPI_INT,recv_buffer,size_ind,MPI_INT,0,MPI_COMM_WORLD);
@@ -163,6 +161,8 @@ Individual* best_found()
 
 	//unpack
 	k=0;
+	for(i=POPSIZE+NEXTGENSIZE;i<NPOPS;i++)
+		population[i] = allocateindividual();
 	for(i=0;i<NPOPS;i++)
 	{
 		for(j=0;j<grafo.n;j++)
