@@ -67,6 +67,8 @@ Individual* uniform_seq_crossover(Individual *p1,Individual *p2);
 Individual* one_point_proc_crossover(Individual *p1,Individual *p2);
 Individual* two_point_proc_crossover(Individual *p1,Individual *p2);
 Individual* uniform_proc_crossover(Individual *p1,Individual *p2);
+Individual* one_point_both_crossover(Individual *p1,Individual *p2);
+Individual* uniform_both_crossover(Individual *p1,Individual *p2);
 
 void bestreinsertion(Population nextgen);
 void elite1reinsertion(Population nextgen);
@@ -78,6 +80,9 @@ Population config2();
 Population config3();
 Population config4();
 Population config5();
+Population config6();
+Population config7();
+Population config8();
 
 list newlist(int cap);
 void add(list l,int a);

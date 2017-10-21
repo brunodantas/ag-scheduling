@@ -33,8 +33,9 @@ void runGA(int argc,char* argv[])
 	selection = &tournament;
 	reinsertion = &elitism;
 	tournamentsize = 2;
-	Population (*configs[6])(void) = 
-			{&config0,&config1,&config2,&config3,&config4,&config5};
+	Population (*configs[9])(void) = 
+			{&config0,&config1,&config2,&config3,&config4,
+			 &config5,&config6,&config7,&config8};
 	if(argc>2)
 	{
 		seed = atoi(argv[1]);
