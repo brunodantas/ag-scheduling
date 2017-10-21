@@ -20,6 +20,7 @@ int NPOPS;
 int MYRANK;
 int MIGRATIONFREQ;
 int MIGRATIONRATE;
+int CONF;
 Graph grafo;
 Population population;
 Individual *bestindividual;
@@ -32,6 +33,7 @@ Individual* (*selection)(void);
 Individual* (*crossover)(Individual*,Individual*);
 void (*reinsertion)(Population);
 void (*migration)(int);
+Population (*nextgeneration)(void);
 char problema[50];
 
 
@@ -51,18 +53,31 @@ Individual* allocateindividual();
 int compareind(const void * a,const void * b);
 
 Population* initpopulation();
-Population nextgeneration();
 void best();
 
+Individual* roullete();
 Individual* tournament();
 Individual* random_selection();
 
 Individual* cyclecrossover(Individual *p1,Individual *p2);
 Individual* newcrossover(Individual *p1,Individual *p2);
+Individual* one_point_seq_crossover(Individual *p1,Individual *p2);
+Individual* two_point_seq_crossover(Individual *p1,Individual *p2);
+Individual* uniform_seq_crossover(Individual *p1,Individual *p2);
+Individual* one_point_proc_crossover(Individual *p1,Individual *p2);
+Individual* two_point_proc_crossover(Individual *p1,Individual *p2);
+Individual* uniform_proc_crossover(Individual *p1,Individual *p2);
 
 void bestreinsertion(Population nextgen);
 void elite1reinsertion(Population nextgen);
 void elitism(Population nextgen);
+
+Population config0();
+Population config1();
+Population config2();
+Population config3();
+Population config4();
+Population config5();
 
 list newlist(int cap);
 void add(list l,int a);

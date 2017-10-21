@@ -15,7 +15,7 @@ int MAXPROCESSOR;
 int POPSIZE;
 int NEXTGENSIZE;
 int MAXGENERATIONS;
-int tournamentsize;
+int CONF;
 int MUTATIONRATE;
 int MIGRATIONFREQ;
 int MIGRATIONRATE;
@@ -40,8 +40,8 @@ void getinput()
 	FILE *f;
 
 	f = fopen("input.txt","r");
-	i = fscanf(f,"Experiments: %d\nProcessors: %d-%d\nPopulation: %d\nGenerations: %d\nCrossover: %d%%\nMutation: %d%%\nTournament: %d\n\nMigrationFreq: %d\nMigrationRate: %d%%\nPopulations: %d",
-		&experiments, &MINPROCCESSOR,&MAXPROCESSOR,&POPSIZE,&MAXGENERATIONS,&NEXTGENSIZE,&MUTATIONRATE,&tournamentsize,&MIGRATIONFREQ,&MIGRATIONRATE,&NPOPS);
+	i = fscanf(f,"Experiments: %d\nProcessors: %d-%d\nPopulation: %d\nGenerations: %d\nCrossover: %d%%\nMutation: %d%%\nConfiguration: %d\n\nMigrationFreq: %d\nMigrationRate: %d%%\nPopulations: %d",
+		&experiments, &MINPROCCESSOR,&MAXPROCESSOR,&POPSIZE,&MAXGENERATIONS,&NEXTGENSIZE,&MUTATIONRATE,&CONF,&MIGRATIONFREQ,&MIGRATIONRATE,&NPOPS);
 	NEXTGENSIZE *= POPSIZE;
 	NEXTGENSIZE /= 100;
 	fclose(f);
@@ -66,7 +66,7 @@ void testconvergence()
 	for(i=0;i<experiments;i++,seed+=NPOPS)
 	{
 		snprintf(command,100,"mpiexec -n %d ../genalg/genalg %d %s %d %d %d %d %d %d %d %d",
-			NPOPS,seed,problema,POPSIZE,MAXGENERATIONS,NEXTGENSIZE,MUTATIONRATE,tournamentsize,proc,MIGRATIONFREQ,MIGRATIONRATE);
+			NPOPS,seed,problema,POPSIZE,MAXGENERATIONS,NEXTGENSIZE,MUTATIONRATE,CONF,proc,MIGRATIONFREQ,MIGRATIONRATE);
 
 		// printf("%s\n",command);
 		f = popen(command,"r");
@@ -114,7 +114,7 @@ int main(int argc,char* argv[])
 	}
 	seed = time(NULL);
 	getinput();
-	printf("\nexperiments: %d\npopulation = %d, generations = %d, crossovers = %d, mutation = %d%%, subpopulations = %d, migrationfreq = %d, migrationrate = %d%%\n\n",experiments,POPSIZE,MAXGENERATIONS,NEXTGENSIZE,MUTATIONRATE,NPOPS,MIGRATIONFREQ,MIGRATIONRATE);
+	printf("\nexperiments: %d\nconfiguration = %d,population = %d, generations = %d, crossovers = %d, mutation = %d%%, subpopulations = %d, migrationfreq = %d, migrationrate = %d%%\n\n",experiments,CONF,POPSIZE,MAXGENERATIONS,NEXTGENSIZE,MUTATIONRATE,NPOPS,MIGRATIONFREQ,MIGRATIONRATE);
 	printf("%10s\tbest\tconv\t%10s\t%10s\ttime\tprocs\n","grafo","avg","worst");
 	for(i=1;i<argc;i++)
 	{

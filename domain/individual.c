@@ -138,7 +138,6 @@ int evaluate(Individual *ind)
 //troca dois genes de lugar
 void mutation(Individual *ind)
 {
-	int flag = 0;
 	int i;
 	int* genes = (int*)  malloc(grafo.n*sizeof(int));
 	char temp[2];
@@ -176,7 +175,6 @@ void mutation(Individual *ind)
 //retorna 1 se existe a->b
 int is_predecessor(int a, int b)
 {
-	int i;
 	Edge e = grafo.nodes[b].predecessors;
 	while(e!=NULL)
 	{

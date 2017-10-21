@@ -20,7 +20,7 @@ Population* initpopulation()
 {
 	Individual* ind;
 	population = malloc((POPSIZE+NEXTGENSIZE+NPOPS)*sizeof(Individual*));
-	int i,j;
+	int i;
 	for(i=0;i<POPSIZE;++i)
 	{
 		ind = newindividual();
@@ -57,22 +57,23 @@ void mutate(Individual* ind)
 }
 
 
-//retorna um vetor de indivíduos descendentes da população atual
-Population nextgeneration()
+//old config
+Population config0()
 {
 	Population nextgen = &population[POPSIZE];
 	Individual *p1,*p2,*ind,*ind2;
-	int flag,i,j,r;
+	int i,r;
 	bestindividual = population[0];
+	reinsertion = &bestreinsertion;
 
 	for(i=0;i<NEXTGENSIZE;i+=2)
 	{
 		//escolha dos pais e crossover
-		p1 = selection();
+		p1 = tournament();
 		p2 = p1;
 		while(p2 == p1)
-			p2 = selection();
-		ind = crossover(p1,p2);
+			p2 = tournament();
+		ind = cyclecrossover(p1,p2);
 		ind2 = c[1];
 
 		//garantia de variedade genética
@@ -94,6 +95,228 @@ Population nextgeneration()
 		evaluate(ind2);
 		populationinsert(nextgen,ind2,i+1);
 		
+	}
+	qsort(nextgen,NEXTGENSIZE,sizeof(Individual*),compareind);
+	return nextgen;
+}
+
+
+//omara config
+Population config1()
+{
+	Population nextgen = &population[POPSIZE];
+	Individual *p1,*p2,*ind,*ind2;
+	int i,r;
+	Individual* (*cross[2])(Individual*,Individual*) = 
+				{&one_point_seq_crossover,&one_point_proc_crossover};
+
+	for(i=0;i<NEXTGENSIZE;i+=2)
+	{
+		//escolha dos pais e crossover
+		p1 = tournament();
+		p2 = p1;
+		while(p2 == p1)
+			p2 = tournament();
+		r = rand()%2;
+		ind = cross[r](p1,p2);
+		ind2 = c[1];
+		
+		//mutação
+		r = rand()%100;
+		if (r < MUTATIONRATE)
+			mutation_proc(ind);
+		evaluate(ind);
+		populationinsert(nextgen,ind,i);
+
+		r = rand()%100;
+		if (r < MUTATIONRATE)
+			mutation_proc(ind2);
+		evaluate(ind2);
+		populationinsert(nextgen,ind2,i+1);
+	}
+	qsort(nextgen,NEXTGENSIZE,sizeof(Individual*),compareind);
+	return nextgen;
+}
+
+
+//omara config + seq_mutation
+Population config2()
+{
+	Population nextgen = &population[POPSIZE];
+	Individual *p1,*p2,*ind,*ind2;
+	int i,r,m;
+	Individual* (*cross[2])(Individual*,Individual*) = 
+				{&one_point_seq_crossover,&one_point_proc_crossover};
+
+	void (*mut[2])(Individual*) = 
+				{&mutation_swap,&mutation_proc};
+
+	for(i=0;i<NEXTGENSIZE;i+=2)
+	{
+		//escolha dos pais e crossover
+		p1 = tournament();
+		p2 = p1;
+		while(p2 == p1)
+			p2 = tournament();
+		r = rand()%2;
+		ind = cross[r](p1,p2);
+		ind2 = c[1];
+		
+		r = rand()%100;
+		if (r < MUTATIONRATE)
+		{
+			m = rand()%2;
+			mut[m](ind);
+		}
+		evaluate(ind);
+		populationinsert(nextgen,ind,i);
+
+		r = rand()%100;
+		if (r < MUTATIONRATE)
+		{
+			m = rand()%2;
+			mut[m](ind2);
+		}
+		evaluate(ind2);
+		populationinsert(nextgen,ind2,i+1);
+	}
+	qsort(nextgen,NEXTGENSIZE,sizeof(Individual*),compareind);
+	return nextgen;
+}
+
+
+//correa config roullete
+Population config3()
+{
+	Population nextgen = &population[POPSIZE];
+	Individual *p1,*p2,*ind,*ind2;
+	int i,r,m;
+	Individual* (*cross[2])(Individual*,Individual*) = 
+				{&uniform_seq_crossover,&uniform_proc_crossover};
+
+	void (*mut[2])(Individual*) = 
+				{&mutation_swap,&mutation_proc};
+
+	for(i=0;i<NEXTGENSIZE;i+=2)
+	{
+		//escolha dos pais e crossover
+		p1 = roullete();
+		p2 = p1;
+		while(p2 == p1)
+			p2 = roullete();
+		r = rand()%2;
+		ind = cross[r](p1,p2);
+		ind2 = c[1];
+		
+		r = rand()%100;
+		if (r < MUTATIONRATE)
+		{
+			m = rand()%2;
+			mut[m](ind);
+		}
+		evaluate(ind);
+		populationinsert(nextgen,ind,i);
+
+		r = rand()%100;
+		if (r < MUTATIONRATE)
+		{
+			m = rand()%2;
+			mut[m](ind2);
+		}
+		evaluate(ind2);
+		populationinsert(nextgen,ind2,i+1);
+	}
+	qsort(nextgen,NEXTGENSIZE,sizeof(Individual*),compareind);
+	return nextgen;
+}
+
+
+//correa config tournament
+Population config4()
+{
+	Population nextgen = &population[POPSIZE];
+	Individual *p1,*p2,*ind,*ind2;
+	int i,r,m;
+	Individual* (*cross[2])(Individual*,Individual*) = 
+				{&uniform_seq_crossover,&uniform_proc_crossover};
+
+	void (*mut[2])(Individual*) = 
+				{&mutation_swap,&mutation_proc};
+
+	for(i=0;i<NEXTGENSIZE;i+=2)
+	{
+		//escolha dos pais e crossover
+		p1 = tournament();
+		p2 = p1;
+		while(p2 == p1)
+			p2 = tournament();
+		r = rand()%2;
+		ind = cross[r](p1,p2);
+		ind2 = c[1];
+		
+		r = rand()%100;
+		if (r < MUTATIONRATE)
+		{
+			m = rand()%2;
+			mut[m](ind);
+		}
+		evaluate(ind);
+		populationinsert(nextgen,ind,i);
+
+		r = rand()%100;
+		if (r < MUTATIONRATE)
+		{
+			m = rand()%2;
+			mut[m](ind2);
+		}
+		evaluate(ind2);
+		populationinsert(nextgen,ind2,i+1);
+	}
+	qsort(nextgen,NEXTGENSIZE,sizeof(Individual*),compareind);
+	return nextgen;
+}
+
+
+//two-point crossovers
+Population config5()
+{
+	Population nextgen = &population[POPSIZE];
+	Individual *p1,*p2,*ind,*ind2;
+	int i,r,m;
+	Individual* (*cross[2])(Individual*,Individual*) = 
+				{&two_point_seq_crossover,&two_point_proc_crossover};
+
+	void (*mut[2])(Individual*) = 
+				{&mutation_swap,&mutation_proc};
+
+	for(i=0;i<NEXTGENSIZE;i+=2)
+	{
+		//escolha dos pais e crossover
+		p1 = tournament();
+		p2 = p1;
+		while(p2 == p1)
+			p2 = tournament();
+		r = rand()%2;
+		ind = cross[r](p1,p2);
+		ind2 = c[1];
+		
+		r = rand()%100;
+		if (r < MUTATIONRATE)
+		{
+			m = rand()%2;
+			mut[m](ind);
+		}
+		evaluate(ind);
+		populationinsert(nextgen,ind,i);
+
+		r = rand()%100;
+		if (r < MUTATIONRATE)
+		{
+			m = rand()%2;
+			mut[m](ind2);
+		}
+		evaluate(ind2);
+		populationinsert(nextgen,ind2,i+1);
 	}
 	qsort(nextgen,NEXTGENSIZE,sizeof(Individual*),compareind);
 	return nextgen;

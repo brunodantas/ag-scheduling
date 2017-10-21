@@ -28,10 +28,13 @@ Individual* genalg()
 void runGA(int argc,char* argv[])
 {
 	int i,j,seed,a;
-	int fd;
 	double exptime,t1,t2;
 	
-	selection = &random_selection;
+	selection = &tournament;
+	reinsertion = &elitism;
+	tournamentsize = 2;
+	Population (*configs[6])(void) = 
+			{&config0,&config1,&config2,&config3,&config4,&config5};
 	if(argc>2)
 	{
 		seed = atoi(argv[1]);
@@ -40,18 +43,17 @@ void runGA(int argc,char* argv[])
 		MAXGENERATIONS = atoi(argv[4]);
 		NEXTGENSIZE = atoi(argv[5]);
 		MUTATIONRATE = atoi(argv[6]);
-		tournamentsize = atoi(argv[7]);
+		CONF = atoi(argv[7]);
 		PROCESSORQTY = atoi(argv[8]);
 		MIGRATIONFREQ = atoi(argv[9]);
 		MIGRATIONRATE = atoi(argv[10]);
-		crossover = &cyclecrossover;
-		reinsertion = &bestreinsertion;
 	}
 	else
 	{
 		seed = time(NULL);
 		getinput();
 	}
+	nextgeneration = configs[CONF];
 
 	init_mpop(); //sets subpopulations
 
@@ -79,7 +81,7 @@ void runGA(int argc,char* argv[])
 
 	else		//handle output, visualization
 	{
-		printf("%s\npopulation = %d, generations = %d, crossovers = %d, mutation = %d%%, subpopulations = %d, migrationfreq = %d, migrationrate = %d%%\n\n",problema,POPSIZE,MAXGENERATIONS,NEXTGENSIZE,MUTATIONRATE,NPOPS,MIGRATIONFREQ,MIGRATIONRATE);
+		printf("%s\nconfiguration = %d, population = %d, generations = %d, crossovers = %d, mutation = %d%%, subpopulations = %d, migrationfreq = %d, migrationrate = %d%%\n\n",problema,CONF,POPSIZE,MAXGENERATIONS,NEXTGENSIZE,MUTATIONRATE,NPOPS,MIGRATIONFREQ,MIGRATIONRATE);
 		printf("execution time: %f s\nbest fitness: %d\ncheck output.txt\n",exptime,ind->fitness);
 		FILE *fp = fopen("output.txt", "ab+");
 		fp = freopen("output.txt", "w",stdout);

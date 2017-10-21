@@ -59,7 +59,6 @@ static inline poplist mergepop(poplist a,poplist b)
 
 static inline void reins(Population nextgen,int size)
 {
-	int i;
 	Population aux;
 	if(init)
 	{

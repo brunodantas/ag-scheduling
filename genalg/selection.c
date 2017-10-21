@@ -21,6 +21,30 @@ Individual* tournament()
 }
 
 
+Individual* roullete()
+{
+	int i;
+	int worstfitness;
+	Individual *p;
+	long j, roulletesize = 0;
+
+	worstfitness = population[POPSIZE-1]->fitness + 1;
+
+	for(i=0;i<POPSIZE;++i)
+		roulletesize += worstfitness - population[i]->fitness;
+
+	j = rand()%roulletesize;
+	for(i=0;i<POPSIZE;++i)
+	{
+		p = population[i];
+		j -= worstfitness - p->fitness;
+		if(j<0)
+			break;
+	}
+	return p;
+}
+
+
 Individual* random_selection()
 {
 	int r;

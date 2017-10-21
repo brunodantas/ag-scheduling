@@ -1,11 +1,11 @@
-Problem: ../problems/GAUSS44.txt
+Problem: ../problems/GAUSS18.txt
 
 Processors: 4
-Population: 1000
+Population: 200
 Generations: 500
-Crossover: 100%
-Mutation: 90%
-Tournament: 2
+Crossover: 60%
+Mutation: 30%
+Configuration: 2
 
 MigrationFreq: 50
 MigrationRate: 10%
