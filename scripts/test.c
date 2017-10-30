@@ -106,7 +106,8 @@ void testconvergence()
 
 int main(int argc,char* argv[])
 {
-	int i;
+	int i, nprobs = argc;
+	char** probs = argv;
 	if (argc < 2)
 	{
 		printf("usage: %s {list of problem files}\n",argv[0]);
@@ -116,11 +117,11 @@ int main(int argc,char* argv[])
 	getinput();
 	printf("\nexperiments: %d\nconfiguration = %d,population = %d, generations = %d, crossovers = %d, mutation = %d%%, subpopulations = %d, migrationfreq = %d, migrationrate = %d%%\n\n",experiments,CONF,POPSIZE,MAXGENERATIONS,NEXTGENSIZE,MUTATIONRATE,NPOPS,MIGRATIONFREQ,MIGRATIONRATE);
 	printf("%10s\tbest\tconv\t%10s\t%10s\ttime\tprocs\n","grafo","avg","worst");
-	for(i=1;i<argc;i++)
+	for(i=1;i<nprobs;i++)
 	{
 		for (proc=MINPROCCESSOR; proc<=MAXPROCESSOR; proc+=2)
 		{
-			snprintf(problema,50,"%s",argv[i]);
+			snprintf(problema,50,"%s",probs[i]);
 			testconvergence();
 		}
 	}
