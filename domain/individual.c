@@ -228,21 +228,15 @@ void mutation_proc(Individual *ind)
 void makevalid(Individual *ind)
 {
 	int i,j;
-	list genes[2];
-	genes[0] = newlist(grafo.n);
-	genes[1] = newlist(grafo.n);
-	int* newgenes[2];
-	newgenes[0] = (int*)  malloc(grafo.n*sizeof(int));
-	newgenes[1] = (int*)  malloc(grafo.n*sizeof(int));
-
+	list genes = newlist(grafo.n);
+	int* newgenes = (int*)  malloc(grafo.n*sizeof(int));
 	int* predecessorsleft = (int*)  malloc(grafo.n*sizeof(int));
 	Edge e;
-	int currenttaskid;
+	int task;
 
 	for(i=0; i<grafo.n; i++)
 	{
-		add(genes[0],ind->sequence[i]);
-		add(genes[1],ind->processors[i]);
+		add(genes,ind->sequence[i]);
 		predecessorsleft[i] = grafo.nodes[i].predqty;
 	}
 
@@ -250,29 +244,21 @@ void makevalid(Individual *ind)
 	{
 		for(j=0;;j++)
 		{
-			currenttaskid = at(genes[0],j);
-			if(predecessorsleft[currenttaskid] == 0)
+			task = at(genes,j);
+			if(predecessorsleft[task] == 0)
 			{
-				newgenes[0][i] = currenttaskid;
-				newgenes[1][i] = at(genes[1],j);
-				erase(genes[0],j);
-				erase(genes[1],j);
-
-				for(e = grafo.nodes[currenttaskid].successors; e!=NULL; e = e->next)
+				newgenes[i] = task;
+				erase(genes,j);
+				for(e = grafo.nodes[task].successors; e!=NULL; e = e->next)
 					predecessorsleft[e->node->id]--;
-
 				break;
 			}
 		}
 	}
-	free(genes[0]->info);
-	free(genes[1]->info);
-	free(genes[0]);
-	free(genes[1]);
+	free(genes->info);
+	free(genes);
 	free(ind->sequence);
-	free(ind->processors);
-	ind->sequence = newgenes[0];
-	ind->processors = newgenes[1];
+	ind->sequence = newgenes;
 }
 
 

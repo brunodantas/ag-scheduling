@@ -2,9 +2,9 @@
 
 
 //gera dois indivíduos filhos dados dois pais
-Individual* cyclecrossover(Individual *p1,Individual *p2)
+Individual* cycle_crossover(Individual *p1,Individual *p2, int carry)
 {
-	int i,j,k,inicial,aux[2];
+	int i,j,k,inicial,aux,task;
 	
 	c[0] = allocateindividual();
 	c[1] = allocateindividual();
@@ -22,12 +22,16 @@ Individual* cyclecrossover(Individual *p1,Individual *p2)
 
 	//printf("k = %d\n",k);
 
-	aux[0] = c[0]->sequence[k];
-	aux[1] = c[0]->processors[k];
-	c[0]->sequence[k] = c[1]->sequence[k];
-	c[0]->processors[k] = c[1]->processors[k];
-	c[1]->sequence[k] = aux[0];
-	c[1]->processors[k] = aux[1];
+	aux = c[0]->sequence[k];
+	c[0]->sequence[k] = c[1]->sequence[k];	
+	c[1]->sequence[k] = aux;
+	if(carry)
+	{
+		task = c[0]->sequence[k];
+		aux = c[0]->processors[task];
+		c[0]->processors[task] = c[1]->processors[task];
+		c[1]->processors[task] = aux;
+	}
 
 	inicial = c[1]->sequence[k];
 	i = c[0]->sequence[k];
@@ -39,12 +43,16 @@ Individual* cyclecrossover(Individual *p1,Individual *p2)
 				break;
 		}
 
-		aux[0] = c[0]->sequence[j];
-		aux[1] = c[0]->processors[j];
+		aux = c[0]->sequence[j];
 		c[0]->sequence[j] = c[1]->sequence[j];
-		c[0]->processors[j] = c[1]->processors[j];
-		c[1]->sequence[j] = aux[0];
-		c[1]->processors[j] = aux[1];
+		c[1]->sequence[j] = aux;
+		if(carry)
+		{
+			task = c[0]->sequence[k];
+			aux = c[0]->processors[task];
+			c[0]->processors[task] = c[1]->processors[task];
+			c[1]->processors[task] = aux;
+		}
 
 		k = j;
 		i = c[0]->sequence[j];
@@ -55,7 +63,19 @@ Individual* cyclecrossover(Individual *p1,Individual *p2)
 }
 
 
-Individual* newcrossover(Individual *p1,Individual *p2)
+Individual* cycle_crossover_seq(Individual *p1,Individual *p2)
+{
+	return cycle_crossover(p1,p2,0);
+}
+
+
+Individual* cycle_crossover_carry(Individual *p1,Individual *p2)
+{
+	return cycle_crossover(p1,p2,1);
+}
+
+
+Individual* exchange_crossover(Individual *p1,Individual *p2)
 {
 	int j;
 	c[0] = allocateindividual();
@@ -482,5 +502,153 @@ Individual* one_point_both_crossover(Individual *p1,Individual *p2)
 
 	free(used[0]);
 	free(used[1]);
+	return *c;
+}
+
+
+Individual* ox(Individual *p1,Individual *p2, int start, int end, int carry)
+{
+	Individual* child = allocateindividual();
+	int i,j,task,p,count,a,b;
+	int* used = calloc(grafo.n, sizeof(int));
+	int* predecessor = calloc(grafo.n, sizeof(int));
+	int* successor = calloc(grafo.n, sizeof(int));
+	int predecessorsleft = 0;
+	Edge e;
+
+	if(!carry)
+	{
+		a = 0;
+		b = grafo.n;
+	}
+	else
+	{
+		a = start;
+		b = end;		
+	}
+
+	for(i=a;i<b;i++)
+	{
+		task = p1->sequence[i];
+		child->processors[task] = p1->processors[task];
+	}
+
+	for(i=start;i<end;i++)
+	{
+		used[p1->sequence[i]] = 1;
+		successor[p1->sequence[i]] = 1;
+	}
+
+	//contar predecessores do bloco
+	for(i=start;i<end;i++)
+	{
+		task = p1->sequence[i];
+		for(e = grafo.nodes[task].predecessors; e!=NULL; e = e->next)
+		{
+			p = e->node->id;
+			if(!used[p] && predecessor[p] == 0)
+			{
+				predecessor[p] = 1;
+				predecessorsleft++;
+			}
+		}
+	}
+
+	//contar sucessores do bloco
+	for(i=end;i<grafo.n;i++)
+	{
+		task = p1->sequence[i];
+		for(e = grafo.nodes[task].predecessors; e!=NULL; e = e->next)
+		{
+			p = e->node->id;
+			if(successor[p]) //se um predecessor de task é um sucessor do bloco
+			{				 //então task também é sucessor
+				successor[task] = 1;
+				break;
+			}
+		}
+	}
+
+	//porção anterior ao bloco
+	count = 0;
+	for(i=0;count < start || predecessorsleft > 0;i++)
+	{
+		task = p2->sequence[i];
+		if(!successor[task]) //se task não pertence ao bloco
+		{					 //e não é sucessor do bloco
+
+			child->sequence[count] = task;
+			used[task] = 1;
+			if(carry)
+				child->processors[task] = p2->processors[task];
+			if(predecessor[task])
+				predecessorsleft--;
+			count++;
+		}
+	}
+
+	//bloco
+	for(i=start;i < end;i++)
+	{
+		child->sequence[count] = p1->sequence[i];
+		count++;
+	}
+
+	//resto
+	for(i=0;count < grafo.n;i++)
+	{
+		task = p2->sequence[i];
+		if(!used[task])
+		{
+			child->sequence[count] = task;
+			if(carry)
+				child->processors[task] = p2->processors[task];
+			count++;
+		}
+	}
+
+	free(used);
+	free(predecessor);
+	free(successor);
+	return child;
+}
+
+
+Individual* ox_seq(Individual *p1,Individual *p2)
+{
+	int start = rand()%(grafo.n - 4);
+	int end   = rand()%(grafo.n - start) + start + 1;
+	c[0] = ox(p1,p2,start,end,0);
+	c[1] = ox(p2,p1,start,end,0);
+	// for(int j=0;j<grafo.n;j++)
+	// {
+	// 	printf("%d/%d, ",p1->sequence[j],p1->processors[p1->sequence[j]]);
+	// }
+	// printf("\n");
+	// for(int j=0;j<grafo.n;j++)
+	// {
+	// 	printf("%d/%d, ",c[0]->sequence[j],c[0]->processors[c[0]->sequence[j]]);
+	// }
+	// printf("\n");
+	// for(int j=0;j<grafo.n;j++)
+	// {
+	// 	printf("%d/%d, ",p2->sequence[j],p2->processors[p2->sequence[j]]);
+	// }
+	// printf("\n");
+	// for(int j=0;j<grafo.n;j++)
+	// {
+	// 	printf("%d/%d, ",c[1]->sequence[j],c[1]->processors[c[1]->sequence[j]]);
+	// }
+	// printf("\n%d,%d\n",start,end);
+	return *c;
+}
+
+
+Individual* ox_carry(Individual *p1,Individual *p2)
+{
+	int start = rand()%(grafo.n - 4);
+	int end   = rand()%(grafo.n - start) + start + 1;
+	c[0] = ox(p1,p2,start,end,1);
+	c[1] = ox(p2,p1,start,end,1);
 	return *c;
 }
