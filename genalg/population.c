@@ -6,6 +6,12 @@
 
 static inline void populationinsert(Population population,Individual *ind,int size);
 
+Individual* (*selec)(void);
+Individual* (*cross[10])(Individual*,Individual*);
+void (*mut[2])(Individual*);
+int ncross;
+int nmut;
+
 
 int compareind(const void * a,const void * b)
 {
@@ -94,6 +100,114 @@ Population config0()
 		evaluate(ind2);
 		populationinsert(nextgen,ind2,i+1);
 		
+	}
+	qsort(nextgen,NEXTGENSIZE,sizeof(Individual*),compareind);
+	return nextgen;
+}
+
+
+void init_config(int conf)
+{
+	selec = &tournament;
+	mut[0] = &mutation_proc;
+	mut[1] = &mutation_swap;
+	nmut = 2;
+	switch(conf)
+	{
+		case 0: //cycle crossover
+			cross[0] = &cycle_crossover_carry;
+			ncross = 1;
+			break;
+
+		case 1:	//omara config
+			cross[0] = &one_point_seq_crossover;
+			cross[1] = &one_point_proc_crossover;
+			ncross = 2;
+			nmut = 1;
+			break;
+
+		case 2: //omara config + seq_mutation
+			cross[0] = &one_point_seq_crossover;
+			cross[1] = &one_point_proc_crossover;
+			ncross = 2;
+			break;
+
+		case 3: //correa config roullete
+			selec = &roullete;
+			//uniform carry crossover
+			break;
+
+		case 4: //correa config tournament
+			//uniform carry crossover
+			break;
+
+		case 5: //two-point "both" crossover
+			cross[0] = &two_point_seq_crossover;
+			cross[1] = &two_point_proc_crossover;
+			ncross = 2;
+			break;
+
+		case 6: //one-point "both" crossover
+			cross[0] = &one_point_both_crossover;
+			ncross = 1;
+			break;
+
+		case 7: //uniform both crossover
+			cross[0] = &uniform_both_crossover;
+			ncross = 1;
+			break;
+
+		case 8: //ox carry
+			cross[0] = &ox_carry;
+			ncross = 1;
+			break;
+	}
+}
+
+
+Population run_config()
+{
+	Population nextgen = &population[POPSIZE];
+	Individual *p1,*p2,*ind,*ind2;
+	int i,r=0,m=0;
+
+	for(i=0;i<NEXTGENSIZE;i+=2)
+	{
+		//escolha dos pais e crossover
+		p1 = selec();
+		p2 = p1;
+		while(p2 == p1)
+			p2 = selec();
+		if(ncross > 1)
+			r = rand()%ncross;
+		else
+			r = 0;
+		ind = cross[r](p1,p2);
+		ind2 = c[1];
+
+		r = rand()%100;
+		if (r < MUTATIONRATE)
+		{
+			if(nmut > 1)
+				m = rand()%2;
+			else
+				m = 0;
+			mut[m](ind);
+		}
+		evaluate(ind);
+		populationinsert(nextgen,ind,i);
+
+		r = rand()%100;
+		if (r < MUTATIONRATE)
+		{
+			if(nmut > 1)
+				m = rand()%2;
+			else
+				m = 0;
+			mut[m](ind2);
+		}
+		evaluate(ind2);
+		populationinsert(nextgen,ind2,i+1);
 	}
 	qsort(nextgen,NEXTGENSIZE,sizeof(Individual*),compareind);
 	return nextgen;

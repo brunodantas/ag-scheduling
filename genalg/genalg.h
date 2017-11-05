@@ -77,6 +77,8 @@ void bestreinsertion(Population nextgen);
 void elite1reinsertion(Population nextgen);
 void elitism(Population nextgen);
 
+void init_config(int conf);
+Population run_config();
 Population config0();
 Population config1();
 Population config2();
