@@ -215,7 +215,92 @@ Individual* two_point_seq_crossover(Individual *p1,Individual *p2)
 }
 
 
-Individual* uniform_seq_crossover(Individual *p1,Individual *p2)
+Individual* two_point_both_crossover(Individual *p1,Individual *p2)
+{
+	c[0] = allocateindividual();
+	c[1] = allocateindividual();
+	int point1 = rand()%(grafo.n - 4) + 1;
+	int point2 = rand()%(grafo.n - point1-1) + point1 + 1;
+	int* used[2];
+	used[0] = calloc(grafo.n, sizeof(int));
+	used[1] = calloc(grafo.n, sizeof(int));
+	int i,j,k,l,task;
+
+	for(i=0;i<point1;i++)
+	{
+		task = p1->sequence[i];
+		c[0]->sequence[i] = task;
+		used[0][task] = 1;
+
+		task = p2->sequence[i];
+		c[1]->sequence[i] = task;
+		used[1][task] = 1;
+	}
+
+	j=i;
+	k=i;
+	l=i;
+	for(i=0;i<point2;i++)
+	{
+		task = p2->sequence[i];
+		if(j < grafo.n && !used[0][task])
+		{
+			c[0]->sequence[j] = task;
+			used[0][task] = 1;
+			j++;
+		}
+
+		task = p1->sequence[i];
+		if(k < grafo.n && !used[1][task])
+		{
+			c[1]->sequence[k] = task;
+			used[1][task] = 1;
+			k++;
+		}
+	}
+
+	for(i=l;i<grafo.n;i++)
+	{
+		task = p1->sequence[i];
+		if(j < grafo.n && !used[0][task])
+		{
+			c[0]->sequence[j] = task;
+			j++;
+		}
+
+		task = p2->sequence[i];
+		if(k < grafo.n && !used[1][task])
+		{
+			c[1]->sequence[k] = task;
+			k++;
+		}
+	}
+
+	//processors
+	point1 = rand()%(grafo.n - 4) + 1;
+	point2 = rand()%(grafo.n - point1-1) + point1 + 1;
+	for(i=0;i<point1;i++)
+	{
+		c[0]->processors[i] = p1->processors[i];
+		c[1]->processors[i] = p2->processors[i];
+	}
+	for(;i<point2;i++)
+	{
+		c[0]->processors[i] = p2->processors[i];
+		c[1]->processors[i] = p1->processors[i];
+	}
+	for(;i<grafo.n;i++)
+	{
+		c[0]->processors[i] = p1->processors[i];
+		c[1]->processors[i] = p2->processors[i];
+	}
+	free(used[0]);
+	free(used[1]);
+	return *c;
+}
+
+
+Individual* uniform_seq_cross(Individual *p1,Individual *p2,int carry)
 {
 	c[0] = allocateindividual();
 	c[1] = allocateindividual();
@@ -233,8 +318,11 @@ Individual* uniform_seq_crossover(Individual *p1,Individual *p2)
 
 	for(i=0;i<grafo.n;i++)
 	{
-		c[0]->processors[i]   = p[0]->processors[i];
-		c[1]->processors[i]   = p[1]->processors[i];
+		if(!carry)
+		{
+			c[0]->processors[i]   = p[0]->processors[i];
+			c[1]->processors[i]   = p[1]->processors[i];
+		}
 
 		r = rand()%2;
 
@@ -246,6 +334,8 @@ Individual* uniform_seq_crossover(Individual *p1,Individual *p2)
 		}
 		c[0]->sequence[i] = task;
 		used[0][task] = 1;
+		if(carry)
+			c[0]->processors[task] = p[r]->processors[task];
 		
 		task = p[!r]->sequence[k[r]];
 		while(used[1][task])
@@ -255,33 +345,25 @@ Individual* uniform_seq_crossover(Individual *p1,Individual *p2)
 		}
 		c[1]->sequence[i] = task;
 		used[1][task] = 1;
+		if(carry)
+			c[1]->processors[task] = p[!r]->processors[task];
 	}
-
-
-	// for(int j=0;j<grafo.n;j++)
-	// {
-	// 	printf("%d/%d, ",p1->sequence[j],p1->processors[j]);
-	// }
-	// printf("\n");
-	// for(int j=0;j<grafo.n;j++)
-	// {
-	// 	printf("%d/%d, ",c[0]->sequence[j],c[0]->processors[j]);
-	// }
-	// printf("\n");
-	// for(int j=0;j<grafo.n;j++)
-	// {
-	// 	printf("%d/%d, ",p2->sequence[j],p2->processors[j]);
-	// }
-	// printf("\n");
-	// for(int j=0;j<grafo.n;j++)
-	// {
-	// 	printf("%d/%d, ",c[1]->sequence[j],c[1]->processors[j]);
-	// }
-	// printf("\n\n");//,point1,point2);
 	
 	free(used[0]);
 	free(used[1]);
 	return *c;
+}
+
+
+Individual* uniform_seq_crossover(Individual *p1,Individual *p2)
+{
+	return uniform_seq_cross(p1,p2,0);
+}
+
+
+Individual* uniform_crossover_carry(Individual *p1,Individual *p2)
+{
+	return uniform_seq_cross(p1,p2,1);
 }
 
 
@@ -620,6 +702,85 @@ Individual* ox_seq(Individual *p1,Individual *p2)
 	int end   = rand()%(grafo.n - start) + start + 1;
 	c[0] = ox(p1,p2,start,end,0);
 	c[1] = ox(p2,p1,start,end,0);
+	return *c;
+}
+
+
+Individual* ox_carry(Individual *p1,Individual *p2)
+{
+	int start = rand()%(grafo.n - 4);
+	int end   = rand()%(grafo.n - start) + start + 1;
+	c[0] = ox(p1,p2,start,end,1);
+	c[1] = ox(p2,p1,start,end,1);
+	return *c;
+}
+
+
+Individual* pmx(Individual *p1,Individual *p2, int carry)
+{
+	int i,aux,task1,task2,t;
+	int start = rand()%(grafo.n - 4) + 1;
+	int end = rand()%(grafo.n - start-1) + start + 1;
+	int* exchange1 = malloc(grafo.n*sizeof(int));
+	int* exchange2 = malloc(grafo.n*sizeof(int));
+	int* used1 = calloc(grafo.n, sizeof(int));
+	int* used2 = calloc(grafo.n, sizeof(int));
+	c[0] = allocateindividual();
+	c[1] = allocateindividual();
+
+	if(!carry)
+	{
+		for(i=0;i<grafo.n;i++)
+		{
+			c[0]->processors[i] = p1->processors[i];
+			c[1]->processors[i] = p2->processors[i];
+		}
+	}
+
+	for(i=start;i<end;i++)
+	{
+		task1 = p1->sequence[i];
+		task2 = p2->sequence[i];
+		exchange1[task2] = task1;
+		exchange2[task1] = task2;
+		c[0]->sequence[i] = task2;
+		c[1]->sequence[i] = task1;
+		used1[task2] = 1;
+		used2[task1] = 1;
+		if(carry)
+		{
+			c[0]->processors[task2] = p2->processors[task2];
+			c[1]->processors[task1] = p1->processors[task1];
+		}
+	}
+
+	for(i=0;i<grafo.n;i++)
+	{
+		if(i<start || i >= end)
+		{
+			t = p1->sequence[i];
+			while(used1[t])
+				t = exchange1[t];
+			c[0]->sequence[i] = t;
+
+			if(carry)
+				c[0]->processors[t] = p1->processors[t];
+		}
+	}
+
+	for(i=0;i<grafo.n;i++)
+	{
+		if(i<start || i >= end)
+		{
+			t = p2->sequence[i];
+			while(used2[t])
+				t = exchange2[t];
+			c[1]->sequence[i] = t;
+
+			if(carry)
+				c[1]->processors[t] = p2->processors[t];
+		}
+	}
 	// for(int j=0;j<grafo.n;j++)
 	// {
 	// 	printf("%d/%d, ",p1->sequence[j],p1->processors[p1->sequence[j]]);
@@ -640,15 +801,43 @@ Individual* ox_seq(Individual *p1,Individual *p2)
 	// 	printf("%d/%d, ",c[1]->sequence[j],c[1]->processors[c[1]->sequence[j]]);
 	// }
 	// printf("\n%d,%d\n",start,end);
+	makevalid(c[0]);
+	makevalid(c[1]);
 	return *c;
 }
 
 
-Individual* ox_carry(Individual *p1,Individual *p2)
+Individual* pmx_carry(Individual *p1,Individual *p2)
 {
-	int start = rand()%(grafo.n - 4);
-	int end   = rand()%(grafo.n - start) + start + 1;
-	c[0] = ox(p1,p2,start,end,1);
-	c[1] = ox(p2,p1,start,end,1);
-	return *c;
+	return pmx(p1,p2,1);
+}
+
+
+Individual* pmx_seq(Individual *p1,Individual *p2)
+{
+	return pmx(p1,p2,0);
+}
+
+
+Individual* cycle_two_point(Individual *p1,Individual *p2)
+{
+	p1 = cycle_crossover_seq(p1,p2);
+	p2 = c[1];
+	return two_point_proc_crossover(p1,p2);	
+}
+
+
+Individual* pmx_two_point(Individual *p1,Individual *p2)
+{
+	p1 = pmx_seq(p1,p2);
+	p2 = c[1];
+	return two_point_proc_crossover(p1,p2);
+}
+
+
+Individual* ox_two_point(Individual *p1,Individual *p2)
+{
+	p1 = ox_seq(p1,p2);
+	p2 = c[1];
+	return two_point_proc_crossover(p1,p2);
 }
