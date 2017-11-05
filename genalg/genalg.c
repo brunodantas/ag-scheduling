@@ -123,7 +123,7 @@ void runGA(int argc,char* argv[])
 				grafo.nodes[task].cost, bestindividual->processors[task]);
 		}
 		fclose(fp);
-		fp = popen("python3 ../scripts/gantt.py","r");
+		fp = popen("python3 ../scripts/gantt.py best.txt","r");
 		pclose(fp);
 	}
 }

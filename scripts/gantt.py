@@ -3,11 +3,13 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 from matplotlib.ticker import MaxNLocator
+import sys
 
 def formatter(y, pos):
     return 'P' + str(int(y))
 
-df = pd.read_csv('best.txt')
+f = sys.argv[1]
+df = pd.read_csv(f)
 # df.amin = pd.to_datetime(df.amin).astype(datetime)
 # df.amax = pd.to_datetime(df.amax).astype(datetime)
 
