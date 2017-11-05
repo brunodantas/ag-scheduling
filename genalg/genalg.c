@@ -30,7 +30,6 @@ void runGA(int argc,char* argv[])
 	int i,j,seed;
 	double exptime,t1,t2;
 	
-	selection = &tournament;
 	reinsertion = &elitism;
 	tournamentsize = 2;
 	if(argc>2)
