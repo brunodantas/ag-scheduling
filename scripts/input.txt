@@ -3,9 +3,28 @@ Processors: 4-4
 Population: 200
 Generations: 500
 Crossover: 60%
-Mutation: 60%
-Configuration: 2
+Mutation: 30%
+Configuration: 0-14
 
 MigrationFreq: 50
 MigrationRate: 10%
 Populations: 20
+
+
+
+con	class	crossover(s)								Ref
+0	carry	cycle
+1	choose	1-point seq, 1-point procs 					[Omara, 2010]
+2	choose	1-point seq, 1-point procs, extra mutation
+3	carry	uniform, roulllete selection				[Correa, 1999]
+4	carry	uniform
+5	choose	2-point seq, 2-point procs
+6	combine	1-point seq, 1-point procs
+7	combine	uniform seq, uniform procs
+8	combine	2-point seq, 2-point procs
+9	choose	uniform seq, uniform procs
+10	carry	pmx
+11	carry	ox
+12	combine	pmx, 2-point procs 							[Morady, 2016]
+13	combine	cycle, 2-point procs
+14	combine	ox, 2-point procs

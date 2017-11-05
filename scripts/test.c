@@ -15,7 +15,8 @@ int MAXPROCESSOR;
 int POPSIZE;
 int NEXTGENSIZE;
 int MAXGENERATIONS;
-int CONF;
+int CONF1;
+int CONF2;
 int MUTATIONRATE;
 int MIGRATIONFREQ;
 int MIGRATIONRATE;
@@ -31,6 +32,7 @@ int seed;
 char prob[20];
 double timeacc;
 int proc;
+int c;
 
 
 //leitura do arquivo input.txt
@@ -40,8 +42,8 @@ void getinput()
 	FILE *f;
 
 	f = fopen("input.txt","r");
-	i = fscanf(f,"Experiments: %d\nProcessors: %d-%d\nPopulation: %d\nGenerations: %d\nCrossover: %d%%\nMutation: %d%%\nConfiguration: %d\n\nMigrationFreq: %d\nMigrationRate: %d%%\nPopulations: %d",
-		&experiments, &MINPROCCESSOR,&MAXPROCESSOR,&POPSIZE,&MAXGENERATIONS,&NEXTGENSIZE,&MUTATIONRATE,&CONF,&MIGRATIONFREQ,&MIGRATIONRATE,&NPOPS);
+	i = fscanf(f,"Experiments: %d\nProcessors: %d-%d\nPopulation: %d\nGenerations: %d\nCrossover: %d%%\nMutation: %d%%\nConfiguration: %d-%d\n\nMigrationFreq: %d\nMigrationRate: %d%%\nPopulations: %d",
+		&experiments, &MINPROCCESSOR,&MAXPROCESSOR,&POPSIZE,&MAXGENERATIONS,&NEXTGENSIZE,&MUTATIONRATE,&CONF1,&CONF2,&MIGRATIONFREQ,&MIGRATIONRATE,&NPOPS);
 	NEXTGENSIZE *= POPSIZE;
 	NEXTGENSIZE /= 100;
 	fclose(f);
@@ -66,7 +68,7 @@ void testconvergence()
 	for(i=0;i<experiments;i++,seed+=NPOPS)
 	{
 		snprintf(command,100,"mpiexec -n %d ../genalg/genalg %d %s %d %d %d %d %d %d %d %d",
-			NPOPS,seed,problema,POPSIZE,MAXGENERATIONS,NEXTGENSIZE,MUTATIONRATE,CONF,proc,MIGRATIONFREQ,MIGRATIONRATE);
+			NPOPS,seed,problema,POPSIZE,MAXGENERATIONS,NEXTGENSIZE,MUTATIONRATE,c,proc,MIGRATIONFREQ,MIGRATIONRATE);
 
 		// printf("%s\n",command);
 		f = popen(command,"r");
@@ -115,16 +117,21 @@ int main(int argc,char* argv[])
 	}
 	seed = time(NULL);
 	getinput();
-	printf("\nexperiments: %d\nconfiguration = %d,population = %d, generations = %d, crossovers = %d, mutation = %d%%, subpopulations = %d, migrationfreq = %d, migrationrate = %d%%\n\n",experiments,CONF,POPSIZE,MAXGENERATIONS,NEXTGENSIZE,MUTATIONRATE,NPOPS,MIGRATIONFREQ,MIGRATIONRATE);
-	printf("%10s\tbest\tconv\t%10s\t%10s\ttime\tprocs\n","grafo","avg","worst");
-	for(i=1;i<nprobs;i++)
+
+	for(c=CONF1;c<=CONF2;c++)
 	{
-		for (proc=MINPROCCESSOR; proc<=MAXPROCESSOR; proc+=2)
+		printf("\nexperiments: %d\nconfiguration = %d,population = %d, generations = %d, crossovers = %d, mutation = %d%%, subpopulations = %d, migrationfreq = %d, migrationrate = %d%%\n\n",experiments,c,POPSIZE,MAXGENERATIONS,NEXTGENSIZE,MUTATIONRATE,NPOPS,MIGRATIONFREQ,MIGRATIONRATE);
+		printf("%10s\tbest\tconv\t%10s\t%10s\ttime\tprocs\n","grafo","avg","worst");
+		for(i=1;i<nprobs;i++)
 		{
-			snprintf(problema,50,"%s",probs[i]);
-			testconvergence();
+			for (proc=MINPROCCESSOR; proc<=MAXPROCESSOR; proc++)
+			{
+				snprintf(problema,50,"%s",probs[i]);
+				testconvergence();
+			}
 		}
+		printf("\n");
 	}
-	printf("\n");
+	
 	return 0;
 }
