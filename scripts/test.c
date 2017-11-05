@@ -102,7 +102,8 @@ void testconvergence()
 	// exptime = t2-t1;
 	sscanf(problema, "../problems/%s",prob);
 	prob[strlen(prob)-4] = '\0';
-	printf("%10s\t%d\t%d/%d\t%.1f (%.2f%%)\t%d (%.2f%%)\t%.3lf\t%d\n",prob,best,convergence,experiments,m,m2,worst,w2,mt,proc);
+	// printf("%10s\t%d\t%d/%d\t%.1f (%.2f%%)\t%d (%.2f%%)\t%.3lf\t%d\t%d\n",prob,best,convergence,experiments,m,m2,worst,w2,mt,proc,c);
+	printf("%10s\t%d\t%d/%d\t%.1f\t%d\t%.3lf\t%d\t%d\n",prob,best,convergence,experiments,m,worst,mt,proc,c);
 }
 
 
@@ -118,10 +119,10 @@ int main(int argc,char* argv[])
 	seed = time(NULL);
 	getinput();
 
+	printf("\nexperiments: %d\npopulation = %d, generations = %d, crossovers = %d, mutation = %d%%, subpopulations = %d, migrationfreq = %d, migrationrate = %d%%\n\n",experiments,POPSIZE,MAXGENERATIONS,NEXTGENSIZE,MUTATIONRATE,NPOPS,MIGRATIONFREQ,MIGRATIONRATE);
+	printf("%10s\tbest\tconv\t%10s\t%10s\ttime\tprocs\tconf\n","grafo","avg","worst");
 	for(c=CONF1;c<=CONF2;c++)
 	{
-		printf("\nexperiments: %d\nconfiguration = %d,population = %d, generations = %d, crossovers = %d, mutation = %d%%, subpopulations = %d, migrationfreq = %d, migrationrate = %d%%\n\n",experiments,c,POPSIZE,MAXGENERATIONS,NEXTGENSIZE,MUTATIONRATE,NPOPS,MIGRATIONFREQ,MIGRATIONRATE);
-		printf("%10s\tbest\tconv\t%10s\t%10s\ttime\tprocs\n","grafo","avg","worst");
 		for(i=1;i<nprobs;i++)
 		{
 			for (proc=MINPROCCESSOR; proc<=MAXPROCESSOR; proc++)
@@ -130,7 +131,7 @@ int main(int argc,char* argv[])
 				testconvergence();
 			}
 		}
-		printf("\n");
+		// printf("\n");
 	}
 	
 	return 0;
