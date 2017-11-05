@@ -97,7 +97,7 @@ Individual* one_point_seq_crossover(Individual *p1,Individual *p2)
 {
 	c[0] = allocateindividual();
 	c[1] = allocateindividual();
-	int point = rand()%(grafo.n - 3) + 1;
+	int point = rand()%grafo.n;
 	int* used[2];
 	used[0] = calloc(grafo.n, sizeof(int));
 	used[1] = calloc(grafo.n, sizeof(int));
@@ -148,8 +148,8 @@ Individual* two_point_seq_crossover(Individual *p1,Individual *p2)
 {
 	c[0] = allocateindividual();
 	c[1] = allocateindividual();
-	int point1 = rand()%(grafo.n - 4) + 1;
-	int point2 = rand()%(grafo.n - point1-1) + point1 + 1;
+	int point1 = rand()%grafo.n;
+	int point2 = rand()%(grafo.n - point1) + point1;
 	int* used[2];
 	used[0] = calloc(grafo.n, sizeof(int));
 	used[1] = calloc(grafo.n, sizeof(int));
@@ -219,8 +219,8 @@ Individual* two_point_both_crossover(Individual *p1,Individual *p2)
 {
 	c[0] = allocateindividual();
 	c[1] = allocateindividual();
-	int point1 = rand()%(grafo.n - 4) + 1;
-	int point2 = rand()%(grafo.n - point1-1) + point1 + 1;
+	int point1 = rand()%grafo.n;
+	int point2 = rand()%(grafo.n - point1) + point1;
 	int* used[2];
 	used[0] = calloc(grafo.n, sizeof(int));
 	used[1] = calloc(grafo.n, sizeof(int));
@@ -277,8 +277,8 @@ Individual* two_point_both_crossover(Individual *p1,Individual *p2)
 	}
 
 	//processors
-	point1 = rand()%(grafo.n - 4) + 1;
-	point2 = rand()%(grafo.n - point1-1) + point1 + 1;
+	point1 = rand()%grafo.n;
+	point2 = rand()%(grafo.n - point1) + point1;
 	for(i=0;i<point1;i++)
 	{
 		c[0]->processors[i] = p1->processors[i];
@@ -445,7 +445,7 @@ Individual* one_point_proc_crossover(Individual *p1,Individual *p2)
 {
 	c[0] = allocateindividual();
 	c[1] = allocateindividual();
-	int point = rand()%(grafo.n - 2) + 1;
+	int point = rand()%grafo.n;
 	int i;
 
 	for(i=0;i<point;i++)
@@ -473,8 +473,8 @@ Individual* two_point_proc_crossover(Individual *p1,Individual *p2)
 {
 	c[0] = allocateindividual();
 	c[1] = allocateindividual();
-	int point1 = rand()%(grafo.n - 4) + 1;
-	int point2 = rand()%(grafo.n - point1-1) + point1 + 1;
+	int point1 = rand()%grafo.n;
+	int point2 = rand()%(grafo.n - point1) + point1;
 	int i;
 
 	for(i=0;i<point1;i++)
@@ -533,8 +533,8 @@ Individual* one_point_both_crossover(Individual *p1,Individual *p2)
 {
 	c[0] = allocateindividual();
 	c[1] = allocateindividual();
-	int point  = rand()%(grafo.n - 3) + 1;
-	int point2 = rand()%(grafo.n - 2) + 1;
+	int point  = rand()%grafo.n;
+	int point2 = rand()%grafo.n;
 	int* used[2];
 	used[0] = calloc(grafo.n, sizeof(int));
 	used[1] = calloc(grafo.n, sizeof(int));
@@ -698,8 +698,8 @@ Individual* ox(Individual *p1,Individual *p2, int start, int end, int carry)
 
 Individual* ox_seq(Individual *p1,Individual *p2)
 {
-	int start = rand()%(grafo.n - 4);
-	int end   = rand()%(grafo.n - start) + start + 1;
+	int start = rand()%grafo.n;
+	int end   = rand()%(grafo.n - start) + start;
 	c[0] = ox(p1,p2,start,end,0);
 	c[1] = ox(p2,p1,start,end,0);
 	return *c;
@@ -708,8 +708,8 @@ Individual* ox_seq(Individual *p1,Individual *p2)
 
 Individual* ox_carry(Individual *p1,Individual *p2)
 {
-	int start = rand()%(grafo.n - 4);
-	int end   = rand()%(grafo.n - start) + start + 1;
+	int start = rand()%grafo.n;
+	int end   = rand()%(grafo.n - start) + start;
 	c[0] = ox(p1,p2,start,end,1);
 	c[1] = ox(p2,p1,start,end,1);
 	return *c;
@@ -719,8 +719,8 @@ Individual* ox_carry(Individual *p1,Individual *p2)
 Individual* pmx(Individual *p1,Individual *p2, int carry)
 {
 	int i,aux,task1,task2,t;
-	int start = rand()%(grafo.n - 4) + 1;
-	int end = rand()%(grafo.n - start-1) + start + 1;
+	int start = rand()%grafo.n;
+	int end = rand()%(grafo.n - start) + start;
 	int* exchange1 = malloc(grafo.n*sizeof(int));
 	int* exchange2 = malloc(grafo.n*sizeof(int));
 	int* used1 = calloc(grafo.n, sizeof(int));
