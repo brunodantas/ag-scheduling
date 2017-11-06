@@ -103,7 +103,7 @@ void testconvergence()
 	sscanf(problema, "../problems/%s",prob);
 	prob[strlen(prob)-4] = '\0';
 	// printf("%10s\t%d\t%d/%d\t%.1f (%.2f%%)\t%d (%.2f%%)\t%.3lf\t%d\t%d\n",prob,best,convergence,experiments,m,m2,worst,w2,mt,proc,c);
-	printf("%10s\t%d\t%d/%d\t%.1f\t%d\t%.3lf\t%d\t%d\n",prob,best,convergence,experiments,m,worst,mt,proc,c);
+	printf("%10s\t%d\t%d/%d\t%.3f\t%d\t%.3lf\t%d\t%d\n",prob,best,convergence,experiments,m,worst,mt,proc,c);
 }
 
 
