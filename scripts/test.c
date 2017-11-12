@@ -44,8 +44,6 @@ void getinput()
 	f = fopen("input.txt","r");
 	i = fscanf(f,"Experiments: %d\nProcessors: %d-%d\nPopulation: %d\nGenerations: %d\nCrossover: %d%%\nMutation: %d%%\nConfiguration: %d-%d\n\nMigrationFreq: %d\nMigrationRate: %d%%\nPopulations: %d",
 		&experiments, &MINPROCCESSOR,&MAXPROCESSOR,&POPSIZE,&MAXGENERATIONS,&NEXTGENSIZE,&MUTATIONRATE,&CONF1,&CONF2,&MIGRATIONFREQ,&MIGRATIONRATE,&NPOPS);
-	NEXTGENSIZE *= POPSIZE;
-	NEXTGENSIZE /= 100;
 	fclose(f);
 }
 
@@ -70,7 +68,7 @@ void testconvergence()
 		snprintf(command,100,"mpiexec -n %d ../genalg/genalg %d %s %d %d %d %d %d %d %d %d",
 			NPOPS,seed,problema,POPSIZE,MAXGENERATIONS,NEXTGENSIZE,MUTATIONRATE,c,proc,MIGRATIONFREQ,MIGRATIONRATE);
 
-		// printf("%s\n",command);
+		printf("%s\n",command);
 		f = popen(command,"r");
 		while (getline(&buf, &len, f) != -1);
 		pclose(f);
@@ -103,7 +101,7 @@ void testconvergence()
 	sscanf(problema, "../problems/%s",prob);
 	prob[strlen(prob)-4] = '\0';
 	// printf("%10s\t%d\t%d/%d\t%.1f (%.2f%%)\t%d (%.2f%%)\t%.3lf\t%d\t%d\n",prob,best,convergence,experiments,m,m2,worst,w2,mt,proc,c);
-	printf("%10s\t%d\t%d/%d\t%.3f\t%d\t%.3lf\t%d\t%d\n",prob,best,convergence,experiments,m,worst,mt,proc,c);
+	printf("%10s\t%d\t%d\t%.3f\t%d\t%.3lf\t%d\t%d\n",prob,best,convergence,m,worst,mt,proc,c);
 }
 
 
