@@ -94,5 +94,8 @@ void bestreinsertion(Population nextgen)
 void elitism(Population nextgen)
 {
 	int elite = POPSIZE - NEXTGENSIZE;
+	int i;
+	for(i=elite;i<POPSIZE;i++)
+		free(population[i]);
 	reins(nextgen,elite);
 }
