@@ -68,7 +68,7 @@ void testconvergence()
 		snprintf(command,100,"mpiexec -n %d ../genalg/genalg %d %s %d %d %d %d %d %d %d %d",
 			NPOPS,seed,problema,POPSIZE,MAXGENERATIONS,NEXTGENSIZE,MUTATIONRATE,c,proc,MIGRATIONFREQ,MIGRATIONRATE);
 
-		printf("%s\n",command);
+		// printf("%s\n",command);
 		f = popen(command,"r");
 		while (getline(&buf, &len, f) != -1);
 		pclose(f);
