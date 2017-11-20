@@ -20,19 +20,19 @@ int CONF2;
 int MUTATIONRATE;
 int MIGRATIONFREQ;
 int MIGRATIONRATE;
-int NPOPS;
+int NPOPS1, NPOPS2;
 
 int experiments;
 int best;
 int worst;
 int fitnessacc;
 int convergence;
-char problema[50];
+char problema[100];
 int seed;
-char prob[20];
+char prob[100];
 double timeacc;
 int proc;
-int c;
+int c,NPOPS;
 
 
 //leitura do arquivo input.txt
@@ -42,8 +42,8 @@ void getinput()
 	FILE *f;
 
 	f = fopen("input.txt","r");
-	i = fscanf(f,"Experiments: %d\nProcessors: %d-%d\nPopulation: %d\nGenerations: %d\nCrossover: %d%%\nMutation: %d%%\nConfiguration: %d-%d\n\nMigrationFreq: %d\nMigrationRate: %d%%\nPopulations: %d",
-		&experiments, &MINPROCCESSOR,&MAXPROCESSOR,&POPSIZE,&MAXGENERATIONS,&NEXTGENSIZE,&MUTATIONRATE,&CONF1,&CONF2,&MIGRATIONFREQ,&MIGRATIONRATE,&NPOPS);
+	i = fscanf(f,"Experiments: %d\nProcessors: %d-%d\nPopulation: %d\nGenerations: %d\nCrossover: %d%%\nMutation: %d%%\nConfiguration: %d-%d\n\nMigrationFreq: %d\nMigrationRate: %d%%\nPopulations: %d-%d",
+		&experiments, &MINPROCCESSOR,&MAXPROCESSOR,&POPSIZE,&MAXGENERATIONS,&NEXTGENSIZE,&MUTATIONRATE,&CONF1,&CONF2,&MIGRATIONFREQ,&MIGRATIONRATE,&NPOPS1,&NPOPS2);
 	fclose(f);
 }
 
@@ -55,22 +55,23 @@ void testconvergence()
 	worst = 0;
 	fitnessacc = 0;
 	timeacc = 0;
-	char command[100];
+	char command[200];
 	FILE *f;
 	// char buf[32];
 	char* buf;
 	double tim;
-	size_t len = 32;
+	size_t len = 100;
 
 	convergence=0;
 	for(i=0;i<experiments;i++,seed+=NPOPS)
 	{
-		snprintf(command,100,"mpiexec -n %d ../genalg/genalg %d %s %d %d %d %d %d %d %d %d",
+		snprintf(command,200,"mpiexec -n %d ../genalg/genalg %d %s %d %d %d %d %d %d %d %d",
 			NPOPS,seed,problema,POPSIZE,MAXGENERATIONS,NEXTGENSIZE,MUTATIONRATE,c,proc,MIGRATIONFREQ,MIGRATIONRATE);
 
 		// printf("%s\n",command);
 		f = popen(command,"r");
-		while (getline(&buf, &len, f) != -1);
+		while (getline(&buf, &len, f) != -1)
+			usleep(10000);
 		pclose(f);
 		sscanf(buf,"%d, %lf",&fitness,&tim);
 
@@ -101,7 +102,7 @@ void testconvergence()
 	sscanf(problema, "../problems/%s",prob);
 	prob[strlen(prob)-4] = '\0';
 	// printf("%10s\t%d\t%d/%d\t%.1f (%.2f%%)\t%d (%.2f%%)\t%.3lf\t%d\t%d\n",prob,best,convergence,experiments,m,m2,worst,w2,mt,proc,c);
-	printf("%10s\t%d\t%d\t%.3f\t%d\t%.3lf\t%d\t%d\n",prob,best,convergence,m,worst,mt,proc,c);
+	printf("%10s\t%d\t%d\t%.3f\t%d\t%.3lf\t%d\t%d\t%d\n",prob,best,convergence,m,worst,mt,proc,c,NPOPS);
 }
 
 
@@ -117,19 +118,22 @@ int main(int argc,char* argv[])
 	seed = time(NULL);
 	getinput();
 
-	printf("\nexperiments: %d\npopulation = %d, generations = %d, crossovers = %d, mutation = %d%%, subpopulations = %d, migrationfreq = %d, migrationrate = %d%%\n\n",experiments,POPSIZE,MAXGENERATIONS,NEXTGENSIZE,MUTATIONRATE,NPOPS,MIGRATIONFREQ,MIGRATIONRATE);
-	printf("%10s\tbest\tconv\t%10s\t%10s\ttime\tprocs\tconf\n","grafo","avg","worst");
-	for(c=CONF1;c<=CONF2;c++)
+	printf("\nexperiments: %d\npopulation = %d, generations = %d, crossovers = %d, mutation = %d%%, migrationfreq = %d, migrationrate = %d%%\n\n",experiments,POPSIZE,MAXGENERATIONS,NEXTGENSIZE,MUTATIONRATE,MIGRATIONFREQ,MIGRATIONRATE);
+	printf("%10s\tbest\tconv\t%10s\t%10s\ttime\tprocs\tconf\tnpops\n","grafo","avg","worst");
+	for(NPOPS = NPOPS1; NPOPS <= NPOPS2; NPOPS++)
 	{
-		for(i=1;i<nprobs;i++)
+		for(c=CONF1;c<=CONF2;c++)
 		{
-			for (proc=MINPROCCESSOR; proc<=MAXPROCESSOR; proc++)
+			for(i=1;i<nprobs;i++)
 			{
-				snprintf(problema,50,"%s",probs[i]);
-				testconvergence();
+				for (proc=MINPROCCESSOR; proc<=MAXPROCESSOR; proc++)
+				{
+					snprintf(problema,100,"%s",probs[i]);
+					testconvergence();
+				}
 			}
+			// printf("\n");
 		}
-		// printf("\n");
 	}
 	
 	return 0;

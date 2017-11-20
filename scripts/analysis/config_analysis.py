@@ -11,7 +11,7 @@ configs = [x for x in set(df.conf)]
 grafos = [x for x in df2.grafo]
 opt = dict()
 for g in grafos:
-	opt[g] = int(df2[df.grafo == g].best)
+	opt[g] = int(df2[df2.grafo == g].best)
 
 #overwrite convergence
 conv = []
