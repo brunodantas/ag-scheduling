@@ -21,7 +21,7 @@ void init_mpop()
 	POPSIZE /= NPOPS;
 	NEXTGENSIZE *= POPSIZE;
 	NEXTGENSIZE /= 100;
-	if(NPOPS == 1)
+	if(NPOPS == 1 || MIGRATIONRATE == 0 || MIGRATIONFREQ == 0)
 	{
 		migration = &do_nothing;
 		return;
@@ -137,7 +137,7 @@ void ring_migration(int generation)
 Individual* best_found()
 {
 	int i,j,k;
-	if(NPOPS==1)
+	if(migration == &do_nothing)
 		return bestindividual;
 
 	// serialize
@@ -161,7 +161,7 @@ Individual* best_found()
 
 	//unpack
 	k=0;
-	for(i=POPSIZE+NEXTGENSIZE;i<NPOPS;i++)
+	for(i=0;i<NPOPS;i++)
 		population[i] = allocateindividual();
 	for(i=0;i<NPOPS;i++)
 	{

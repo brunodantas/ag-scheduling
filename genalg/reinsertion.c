@@ -66,7 +66,7 @@ static inline void reins(Population nextgen,int size)
 		l1 = malloc(2*sizeof(struct pl));
 
 		l = malloc(sizeof(struct pl));
-		l->info = malloc((POPSIZE+NEXTGENSIZE)*sizeof(Individual*));
+		l->info = malloc((POPSIZE+NEXTGENSIZE+NPOPS)*sizeof(Individual*));
 	}
 	
 	l1[0].info = population;
@@ -96,6 +96,9 @@ void elitism(Population nextgen)
 	int elite = POPSIZE - NEXTGENSIZE;
 	int i;
 	for(i=elite;i<POPSIZE;i++)
+	{
 		free(population[i]);
+		population[i] = NULL;
+	}
 	reins(nextgen,elite);
 }
