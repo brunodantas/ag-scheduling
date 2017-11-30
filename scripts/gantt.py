@@ -18,6 +18,9 @@ plt.gca().yaxis.set_major_formatter(ticker.FuncFormatter(formatter))
 ax.xaxis.set_major_locator(MaxNLocator(integer=True))
 ax.yaxis.set_major_locator(MaxNLocator(integer=True))
 
+ys = max(df.pid)
+plt.ylim(-.9,ys+.9)
+
 # ax = ax.xaxis_date()
 ax.hlines(df.pid, df.start, df.start + df.duration, lw=20)
 for index, row in df.iterrows():
