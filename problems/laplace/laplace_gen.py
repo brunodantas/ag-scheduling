@@ -20,9 +20,9 @@ def makegraph():
 		layers[i] = []
 		for j in range(layer_qty-i):
 			v = vertices.pop(0)
-			layers[i].append(v)			
+			layers[i].append(v)
 
-	print(layers)
+	# print(layers)
 
 	weights = dict()
 	weights[0] = [t1_weight]
@@ -37,7 +37,7 @@ def makegraph():
 	for j in range(1,graph_size-1):
 		weights[graph_size-1].append(t1_weight+20)
 	weights[graph_size-1].append(t1_weight)
-	
+
 	for i in range(1,graph_size):
 		weights[i+graph_size-1] = weights[graph_size-1-i]
 
@@ -56,7 +56,7 @@ def makegraph():
 		for i,v in enumerate(layers[l]):
 			file.write("{} {} {}\n".format(v,layers[l+1][i],edge_weight))
 			file.write("{} {} {}\n".format(v,layers[l+1][i+1],edge_weight))
-	
+
 	for l in range(layer_qty/2,layer_qty-1):
 		file.write("{} {} {}\n".format(layers[l][0],layers[l+1][0],edge_weight))
 		file.write("{} {} {}\n".format(layers[l][-1],layers[l+1][-1],edge_weight))
@@ -76,15 +76,21 @@ def makegraph():
 	file.write("\n")
 	for l in range(layer_qty/2):
 		for i,v in enumerate(layers[l]):
-			file.write("\tv{} -> v{} [label = \"{}\"]\n".format(v,layers[l+1][i],edge_weight))
-			file.write("\tv{} -> v{} [label = \"{}\"]\n".format(v,layers[l+1][i+1],edge_weight))
-	
+			file.write("\tv{} -> v{}\n".format(v,layers[l+1][i]))
+			file.write("\tv{} -> v{}\n".format(v,layers[l+1][i+1]))
+			# file.write("\tv{} -> v{} [label = \"{}\"]\n".format(v,layers[l+1][i],edge_weight))
+			# file.write("\tv{} -> v{} [label = \"{}\"]\n".format(v,layers[l+1][i+1],edge_weight))
+
 	for l in range(layer_qty/2,layer_qty-1):
-		file.write("\tv{} -> v{} [label = \"{}\"]\n".format(layers[l][0],layers[l+1][0],edge_weight))
-		file.write("\tv{} -> v{} [label = \"{}\"]\n".format(layers[l][-1],layers[l+1][-1],edge_weight))
+		file.write("\tv{} -> v{}\n".format(layers[l][0],layers[l+1][0]))
+		file.write("\tv{} -> v{}\n".format(layers[l][-1],layers[l+1][-1]))
+		# file.write("\tv{} -> v{} [label = \"{}\"]\n".format(layers[l][0],layers[l+1][0],edge_weight))
+		# file.write("\tv{} -> v{} [label = \"{}\"]\n".format(layers[l][-1],layers[l+1][-1],edge_weight))
 		for i,v in enumerate(layers[l][1:-1]):
-			file.write("\tv{} -> v{} [label = \"{}\"]\n".format(v,layers[l+1][i],edge_weight))
-			file.write("\tv{} -> v{} [label = \"{}\"]\n".format(v,layers[l+1][i+1],edge_weight))
+			file.write("\tv{} -> v{}\n".format(v,layers[l+1][i]))
+			file.write("\tv{} -> v{}\n".format(v,layers[l+1][i+1]))
+			# file.write("\tv{} -> v{} [label = \"{}\"]\n".format(v,layers[l+1][i],edge_weight))
+			# file.write("\tv{} -> v{} [label = \"{}\"]\n".format(v,layers[l+1][i+1],edge_weight))
 	file.write("}")
 	file.close()
 
