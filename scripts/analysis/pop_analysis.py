@@ -53,7 +53,7 @@ df = df.assign(deviation=dev)
 df.to_csv("out"+file)
 
 ngrafos = len(grafos)
-print("pops\tconv\tbest\tavg\tworst\tspeedup")
+print("pops\tconv\tbest\tavg\tworst\ttime\tspeedup")
 for c in pops:
 	conv[c] /= ngrafos
 	best[c] /= ngrafos
@@ -61,4 +61,4 @@ for c in pops:
 	worst[c] /= ngrafos
 	time[c] /= ngrafos
 	speedup = time[1] / time[c]
-	print("{}\t{}\t{}\t{}\t{}\t{}".format(c,conv[c],best[c],avg[c],worst[c],speedup))
+	print("{}\t{}\t{}\t{}\t{}\t{}\t{}".format(c,conv[c],best[c],avg[c],worst[c],time[c],speedup))
